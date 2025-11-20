@@ -1,9 +1,11 @@
 import Groq from 'groq-sdk';
 import { Profile } from '@/types';
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
+// Initialize Groq client only when API key is available
+// During build time, this may not be set, which is okay
+const groq = process.env.GROQ_API_KEY 
+  ? new Groq({ apiKey: process.env.GROQ_API_KEY })
+  : null;
 
 /**
  * AI-powered profile suggestion using Groq + Llama
@@ -16,6 +18,12 @@ export async function suggestProfilesWithAI(
   try {
     console.log('🧠 Starting Groq AI analysis...');
     console.log('🔑 API Key configured:', !!process.env.GROQ_API_KEY);
+    
+    // If no API key, fall back to keyword matching
+    if (!groq) {
+      console.log('⚠️ Groq API key not configured, using fallback');
+      return fallbackSuggestion(challenge, profiles);
+    }
     
     // Pre-filter profiles to reduce token usage (max 100 most relevant)
     const text = `${challenge.title} ${challenge.description}`.toLowerCase();
