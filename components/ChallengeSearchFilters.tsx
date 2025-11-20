@@ -55,17 +55,17 @@ export function ChallengeSearchFilters({
           <div className="flex flex-col lg:flex-row gap-4">
             {/* Search Input */}
             <div className="flex-1">
-              <div className="input-group">
+              <div className="relative">
                 <input
                   type="text"
                   placeholder="Search challenges by title or description..."
-                  className="input input-bordered w-full"
+                  className="input input-bordered w-full pr-12"
                   value={searchQuery}
                   onChange={(e) => onSearchChange(e.target.value)}
                 />
                 {searchQuery && (
                   <button 
-                    className="btn btn-ghost btn-square"
+                    className="btn btn-ghost btn-sm btn-circle absolute right-2 top-1/2 -translate-y-1/2"
                     onClick={() => onSearchChange('')}
                     aria-label="Clear search"
                   >
