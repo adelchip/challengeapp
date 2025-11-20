@@ -347,14 +347,14 @@ export default function ChallengeDetailPage() {
                 </h2>
                 <div className="divider my-1"></div>
                 <select
-                  className="select select-bordered select-lg w-full"
+                  className="select select-bordered w-full max-w-xs"
                   onChange={(e) => e.target.value && handleJoin(e.target.value)}
                   value=""
                 >
-                  <option value="">Select a profile to add...</option>
+                  <option value="">Select a profile...</option>
                   {profiles.filter(p => !challenge.participants.includes(p.id)).map((profile: Profile) => (
                     <option key={profile.id} value={profile.id}>
-                      {profile.name} - {profile.role}
+                      {profile.name}
                     </option>
                   ))}
                 </select>
