@@ -286,6 +286,7 @@ export default function ChallengeDetailPage() {
                 profiles={profiles}
                 currentUser={currentUser}
                 onSendMessage={handleSendMessage}
+                isCompleted={challenge.status === 'completed'}
               />
             </div>
 

@@ -16,6 +16,8 @@ interface MessageListProps {
   currentUser: Profile | null;
   /** Callback when sending a message */
   onSendMessage: (content: string, senderId: string) => void;
+  /** Whether the challenge is completed */
+  isCompleted?: boolean;
 }
 
 /**
@@ -26,7 +28,8 @@ export function MessageList({
   messages,
   profiles,
   currentUser,
-  onSendMessage
+  onSendMessage,
+  isCompleted = false
 }: MessageListProps) {
   const [newMessage, setNewMessage] = useState('');
   const [selectedSender, setSelectedSender] = useState('');
@@ -90,45 +93,54 @@ export function MessageList({
         </div>
 
         {/* Message Input */}
-        <div className="mt-4">
-          {!currentUser && (
-            <div className="form-control mb-2">
-              <label className="label">
-                <span className="label-text text-xs">Send as:</span>
-              </label>
-              <select
-                className="select select-bordered select-sm"
-                value={selectedSender}
-                onChange={e => setSelectedSender(e.target.value)}
-              >
-                <option value="">Select a profile</option>
-                {profiles.map(profile => (
-                  <option key={profile.id} value={profile.id}>
-                    {profile.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          <div className="flex gap-2">
-            <input
-              type="text"
-              placeholder="Type a message..."
-              className="input input-bordered flex-1"
-              value={newMessage}
-              onChange={e => setNewMessage(e.target.value)}
-              onKeyPress={e => e.key === 'Enter' && handleSend()}
-            />
-            <button
-              className="btn btn-primary"
-              onClick={handleSend}
-              disabled={!newMessage.trim() || (!currentUser && !selectedSender)}
-            >
-              Send
-            </button>
+        {isCompleted ? (
+          <div className="alert alert-success mt-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span>Challenge completed - Messages are read-only</span>
           </div>
-        </div>
+        ) : (
+          <div className="mt-4">
+            {!currentUser && (
+              <div className="form-control mb-2">
+                <label className="label">
+                  <span className="label-text text-xs">Send as:</span>
+                </label>
+                <select
+                  className="select select-bordered select-sm"
+                  value={selectedSender}
+                  onChange={e => setSelectedSender(e.target.value)}
+                >
+                  <option value="">Select a profile</option>
+                  {profiles.map(profile => (
+                    <option key={profile.id} value={profile.id}>
+                      {profile.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Type a message..."
+                className="input input-bordered flex-1"
+                value={newMessage}
+                onChange={e => setNewMessage(e.target.value)}
+                onKeyPress={e => e.key === 'Enter' && handleSend()}
+              />
+              <button
+                className="btn btn-primary"
+                onClick={handleSend}
+                disabled={!newMessage.trim() || (!currentUser && !selectedSender)}
+              >
+                Send
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
