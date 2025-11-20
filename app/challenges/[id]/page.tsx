@@ -7,12 +7,14 @@ import { Message, ChallengeRating, Profile } from '@/types';
 import { useAuth } from '@/hooks/useAuth';
 import { useChallenge } from '@/hooks/useChallenges';
 import { useProfiles } from '@/hooks/useProfiles';
+import { useToast } from '@/hooks/useToast';
 import { ChallengeHeader } from '@/components/challenge/ChallengeHeader';
 import { SuggestedProfiles } from '@/components/challenge/SuggestedProfiles';
 import { ParticipantsList } from '@/components/challenge/ParticipantsList';
 import { MessageList } from '@/components/challenge/MessageList';
 import { RatingModal } from '@/components/challenge/RatingModal';
 import { ProfileAutocomplete } from '@/components/ProfileAutocomplete';
+import { ToastContainer } from '@/components/Toast';
 import { PageLoader } from '@/components/LoadingSpinner';
 
 export default function ChallengeDetailPage() {
@@ -21,6 +23,7 @@ export default function ChallengeDetailPage() {
   const { currentUser, checkAuth } = useAuth();
   const { challenge, loading: challengeLoading, refetch: refetchChallenge } = useChallenge(params.id as string);
   const { profiles, loading: profilesLoading } = useProfiles();
+  const { toasts, showToast, removeToast } = useToast();
   
   const [messages, setMessages] = useState<Message[]>([]);
   const [showRatingModal, setShowRatingModal] = useState(false);
@@ -86,9 +89,10 @@ export default function ChallengeDetailPage() {
       if (error) throw error;
 
       refetchChallenge(); // Refresh challenge data
+      showToast('Participant added successfully!', 'success');
     } catch (error) {
       console.error('Error adding participant:', error);
-      alert('Error adding participant');
+      showToast('Failed to add participant', 'error');
     }
   }
 
@@ -105,9 +109,10 @@ export default function ChallengeDetailPage() {
       if (error) throw error;
 
       refetchChallenge(); // Refresh challenge data
+      showToast('Left challenge successfully!', 'success');
     } catch (error) {
       console.error('Error removing participant:', error);
-      alert('Error removing participant');
+      showToast('Failed to leave challenge', 'error');
     }
   }
 
@@ -128,9 +133,10 @@ export default function ChallengeDetailPage() {
       if (error) throw error;
 
       refetchChallenge(); // Refresh challenge data
+      showToast('Participant removed successfully!', 'success');
     } catch (error) {
       console.error('Error removing participant:', error);
-      alert('Error removing participant');
+      showToast('Failed to remove participant', 'error');
     }
   }
 
@@ -140,7 +146,7 @@ export default function ChallengeDetailPage() {
     // Check if current user is the creator
     const currentUserId = localStorage.getItem('currentUserId');
     if (!currentUserId || challenge.created_by !== currentUserId) {
-      alert('Only the challenge creator can mark it as completed');
+      showToast('Only the challenge creator can mark it as completed', 'warning');
       return;
     }
     
@@ -195,9 +201,10 @@ export default function ChallengeDetailPage() {
 
       refetchChallenge(); // Refresh challenge data
       setShowRatingModal(false);
+      showToast('Challenge completed successfully!', 'success');
     } catch (error) {
       console.error('Error completing challenge:', error);
-      alert('Error completing challenge');
+      showToast('Failed to complete challenge', 'error');
     }
   }
 
@@ -220,9 +227,10 @@ export default function ChallengeDetailPage() {
       if (error) throw error;
 
       setMessages([...messages, data]);
+      showToast('Message sent!', 'success');
     } catch (error) {
       console.error('Error sending message:', error);
-      alert('Error sending message');
+      showToast('Failed to send message', 'error');
     }
   }
 
@@ -238,6 +246,9 @@ export default function ChallengeDetailPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-base-200 to-base-300">
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
+      
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
