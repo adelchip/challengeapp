@@ -163,7 +163,17 @@ export default function Home() {
             {/* People Similar to You - 2/3 width */}
             {currentUser && relatedProfiles.length > 0 && (
               <div className="lg:w-2/3">
-                <h2 className="text-3xl font-bold mb-6">People Similar to You</h2>
+                <div className="flex items-center gap-3 mb-6">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                    People Similar to You
+                  </h2>
+                </div>
+                <p className="text-sm opacity-70 mb-6">
+                  Profiles with matching skills and interests
+                </p>
                 <div className="grid gap-4 md:grid-cols-2">
                   {relatedProfiles.map((profile) => (
                     <ProfileCard key={profile.id} profile={profile} />
@@ -175,7 +185,17 @@ export default function Home() {
             {/* Leaderboard - 1/3 width */}
             {leaderboard.length > 0 && (
               <div className={currentUser && relatedProfiles.length > 0 ? "lg:w-1/3" : "w-full"}>
-                <h2 className="text-3xl font-bold mb-6">Top 10</h2>
+                <div className="flex items-center gap-3 mb-6">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                  </svg>
+                  <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                    Top 10 Leaderboard
+                  </h2>
+                </div>
+                <p className="text-sm opacity-70 mb-6">
+                  Top performers by challenges and ratings
+                </p>
                 <div className="card bg-base-100 shadow-xl">
                   <div className="card-body p-4">
                     <div className="space-y-3">
