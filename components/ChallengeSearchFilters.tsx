@@ -115,7 +115,6 @@ export function ChallengeSearchFilters({
           {/* Active Filters Summary */}
           {hasActiveFilters && (
             <div className="flex gap-2 mt-3 flex-wrap">
-              <span className="text-sm opacity-70">Active filters:</span>
               {searchQuery && (
                 <div className="badge badge-primary gap-2">
                   Search: "{searchQuery}"
