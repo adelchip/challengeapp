@@ -7,6 +7,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { PageLoader } from '@/components/LoadingSpinner';
 import { ChallengeCard } from '@/components/ChallengeCard';
 import { ChallengeSearchFilters, StatusFilter, TypeFilter } from '@/components/ChallengeSearchFilters';
+import { ConfirmModal } from '@/components/ConfirmModal';
+import { Toast, ToastContainer } from '@/components/Toast';
+import { useToast } from '@/hooks/useToast';
 import Link from 'next/link';
 
 export default function ChallengesPage() {
@@ -16,6 +19,9 @@ export default function ChallengesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [challengeToDelete, setChallengeToDelete] = useState<string | null>(null);
+  const { toasts, showToast, removeToast } = useToast();
 
   useEffect(() => {
     fetchChallenges();
@@ -46,19 +52,28 @@ export default function ChallengesPage() {
   }
 
   async function deleteChallenge(id: string) {
-    if (!confirm('Are you sure you want to delete this challenge?')) return;
+    setChallengeToDelete(id);
+    setShowConfirmModal(true);
+  }
+
+  async function confirmDeleteChallenge() {
+    if (!challengeToDelete) return;
 
     try {
       const { error } = await supabase
         .from('challenges')
         .delete()
-        .eq('id', id);
+        .eq('id', challengeToDelete);
 
       if (error) throw error;
-      setChallenges(challenges.filter(c => c.id !== id));
+      setChallenges(challenges.filter(c => c.id !== challengeToDelete));
+      showToast('Challenge deleted successfully!', 'success');
     } catch (error) {
       console.error('Error deleting challenge:', error);
-      alert('Error deleting challenge');
+      showToast('Failed to delete challenge', 'error');
+    } finally {
+      setShowConfirmModal(false);
+      setChallengeToDelete(null);
     }
   }
 
@@ -87,6 +102,20 @@ export default function ChallengesPage() {
 
   return (
     <div>
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
+      
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        title="Delete Challenge"
+        message="Are you sure you want to delete this challenge? This action cannot be undone."
+        onConfirm={confirmDeleteChallenge}
+        onCancel={() => {
+          setShowConfirmModal(false);
+          setChallengeToDelete(null);
+        }}
+        confirmVariant="error"
+      />
+
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
           Challenges
