@@ -3,34 +3,33 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
-import { Profile, Challenge } from '@/types';
+import { Profile } from '@/types';
 import { useAuth } from '@/hooks/useAuth';
+import { useProfiles } from '@/hooks/useProfiles';
+import { useChallenges, useUserChallenges } from '@/hooks/useChallenges';
+import { useLeaderboard } from '@/hooks/useLeaderboard';
+import { findSimilarProfiles, findSuggestedChallenges, ScoredProfile } from '@/lib/scoringService';
 import { PageLoader } from '@/components/LoadingSpinner';
 import { ProfileCard } from '@/components/ProfileCard';
 import { ChallengeCard } from '@/components/ChallengeCard';
 import { MapPinIcon, StarIcon } from '@heroicons/react/24/solid';
 import { StarIcon as StarIconOutline } from '@heroicons/react/24/outline';
 
-interface LeaderboardEntry {
-  profile: Profile;
-  completedChallenges: number;
-  averageRating: number;
-  totalRatings: number;
-  score: number;
-}
-
 export default function Home() {
   const { currentUser } = useAuth();
+  const { profiles } = useProfiles();
+  const { challenges } = useChallenges({ status: 'ongoing' });
+  const { challenges: yourChallenges, loading: yourChallengesLoading } = useUserChallenges(currentUser?.id);
+  const { leaderboard, loading: leaderboardLoading } = useLeaderboard();
+  
   const [stats, setStats] = useState({ challenges: 0, profiles: 0 });
-  const [relatedProfiles, setRelatedProfiles] = useState<Profile[]>([]);
-  const [suggestedChallenges, setSuggestedChallenges] = useState<Challenge[]>([]);
-  const [yourChallenges, setYourChallenges] = useState<Challenge[]>([]);
-  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [relatedProfiles, setRelatedProfiles] = useState<ScoredProfile[]>([]);
+  const [suggestedChallenges, setSuggestedChallenges] = useState<typeof challenges>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadData();
-  }, [currentUser]);
+  }, [currentUser, profiles, challenges]);
 
   async function loadData() {
     // Fetch stats
@@ -44,148 +43,20 @@ export default function Home() {
       profiles: profilesResult.count || 0,
     });
 
-    // Fetch data based on current user
-    if (currentUser) {
-      await Promise.all([
-        fetchRelatedProfiles(currentUser),
-        fetchSuggestedChallenges(currentUser),
-        fetchYourChallenges(currentUser),
-        fetchLeaderboard()
-      ]);
-    } else {
-      // Fetch leaderboard even if not logged in
-      await fetchLeaderboard();
+    // Calculate similar profiles and suggested challenges using scoring service
+    if (currentUser && profiles.length > 0) {
+      const profilesExcludingUser = profiles.filter(p => p.id !== currentUser.id);
+      
+      // Use scoring service to find similar profiles
+      const similar = findSimilarProfiles(currentUser, profilesExcludingUser);
+      setRelatedProfiles(similar);
+      
+      // Use scoring service to find suggested challenges
+      const suggested = findSuggestedChallenges(currentUser, challenges);
+      setSuggestedChallenges(suggested);
     }
 
     setLoading(false);
-  }
-
-  async function fetchRelatedProfiles(user: Profile) {
-    // Get all profiles except current user
-    const { data: allProfiles } = await supabase
-      .from('profiles')
-      .select('*')
-      .neq('id', user.id);
-
-    if (!allProfiles) return;
-
-    // Calculate similarity scores based on skills
-    const scoredProfiles = allProfiles.map(profile => {
-      let score = 0;
-      const matchingSkills: { name: string; userRating: number; profileRating: number; similarity: number }[] = [];
-      
-      // Check for matching skills
-      user.skills.forEach(userSkill => {
-        const matchingSkill = profile.skills.find(
-          (s: any) => s.name.toLowerCase() === userSkill.name.toLowerCase()
-        );
-        if (matchingSkill) {
-          const similarity = 10 - Math.abs(userSkill.rating - matchingSkill.rating);
-          score += similarity;
-          matchingSkills.push({
-            name: matchingSkill.name,
-            userRating: userSkill.rating,
-            profileRating: matchingSkill.rating,
-            similarity
-          });
-        }
-      });
-
-      // Bonus for same business unit
-      if (profile.business_unit === user.business_unit) {
-        score += 3;
-      }
-
-      // Bonus for same country
-      if (profile.country === user.country) {
-        score += 2;
-      }
-
-      // Sort matching skills by similarity
-      matchingSkills.sort((a, b) => b.similarity - a.similarity);
-
-      return { profile, score, matchingSkills };
-    });
-
-    // Sort by score and get top 6
-    const related = scoredProfiles
-      .filter(sp => sp.score > 0)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 6);
-
-    setRelatedProfiles(related.map(sp => ({
-      ...sp.profile,
-      matchingSkills: sp.matchingSkills
-    })));
-  }
-
-  async function fetchSuggestedChallenges(user: Profile) {
-    // Get ongoing challenges that the user is not already participating in
-    const { data: challenges } = await supabase
-      .from('challenges')
-      .select('*')
-      .eq('status', 'ongoing');
-
-    if (!challenges) return;
-
-    // Filter out challenges user is already in, and filter private challenges
-    const scoredChallenges = challenges
-      .filter(challenge => {
-        // Exclude if already participating
-        if (challenge.participants?.includes(user.id)) return false;
-        // Include public challenges, or private challenges where user is creator or participant
-        if (challenge.type === 'public') return true;
-        return challenge.created_by === user.id || challenge.participants?.includes(user.id);
-      })
-      .map(challenge => {
-        let score = 0;
-        
-        // Simple scoring: check if challenge description mentions user's skills
-        const description = challenge.description.toLowerCase();
-        const title = challenge.title.toLowerCase();
-        
-        user.skills.forEach(skill => {
-          const skillLower = skill.name.toLowerCase();
-          // Check for partial matches too (e.g., "react" matches "react.js")
-          if (description.includes(skillLower) || title.includes(skillLower)) {
-            score += skill.rating * 2; // Weight by skill rating
-          }
-        });
-
-        return { challenge, score };
-      });
-
-    // Sort by score (highest first), then by created date (newest first)
-    // Show all ongoing challenges, not just ones with matching skills
-    const suggested = scoredChallenges
-      .sort((a, b) => {
-        if (b.score !== a.score) return b.score - a.score;
-        return new Date(b.challenge.created_at).getTime() - new Date(a.challenge.created_at).getTime();
-      })
-      .slice(0, 6);
-
-    setSuggestedChallenges(suggested.map(sc => sc.challenge));
-  }
-
-  async function fetchYourChallenges(user: Profile) {
-    // Get all challenges where the user is a participant
-    const { data: challenges } = await supabase
-      .from('challenges')
-      .select('*');
-
-    if (!challenges) return;
-
-    // Filter challenges where user is a participant
-    const userChallenges = challenges
-      .filter(challenge => challenge.participants?.includes(user.id))
-      .sort((a, b) => {
-        // Sort by: ongoing first, then by created_at (newest first)
-        if (a.status === 'ongoing' && b.status !== 'ongoing') return -1;
-        if (a.status !== 'ongoing' && b.status === 'ongoing') return 1;
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      });
-
-    setYourChallenges(userChallenges);
   }
 
   async function joinChallenge(challengeId: string) {
@@ -219,72 +90,7 @@ export default function Home() {
     }
   }
 
-  async function fetchLeaderboard() {
-    try {
-      // Get all profiles, challenges, and ratings
-      const [profilesResult, challengesResult, ratingsResult] = await Promise.all([
-        supabase.from('profiles').select('*'),
-        supabase.from('challenges').select('*'),
-        supabase.from('challenge_ratings').select('*')
-      ]);
-
-      if (!profilesResult.data || !challengesResult.data || !ratingsResult.data) return;
-
-      const profiles = profilesResult.data;
-      const challenges = challengesResult.data;
-      const ratings = ratingsResult.data;
-
-      // Calculate leaderboard scores for each profile
-      const leaderboardData: LeaderboardEntry[] = profiles.map(profile => {
-        // Count completed challenges where user was a participant
-        const completedChallenges = challenges.filter(
-          challenge => 
-            challenge.status === 'completed' && 
-            challenge.participants?.includes(profile.id)
-        ).length;
-
-        // Get all ratings for this profile
-        const profileRatings = ratings.filter(r => r.profile_id === profile.id);
-        const totalRatings = profileRatings.length;
-        const averageRating = totalRatings > 0
-          ? profileRatings.reduce((sum, r) => sum + r.rating, 0) / totalRatings
-          : 0;
-
-        // Calculate fair score:
-        // - Completed challenges: 10 points each (encourages participation)
-        // - Average rating: multiplied by 2 (rewards quality performance)
-        // - This way, both participation and performance matter
-        const score = (completedChallenges * 10) + (averageRating * 2);
-
-        return {
-          profile,
-          completedChallenges,
-          averageRating,
-          totalRatings,
-          score
-        };
-      });
-
-      // Sort by score (highest first) and take top 10
-      const topTen = leaderboardData
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 10);
-
-      setLeaderboard(topTen);
-    } catch (error) {
-      console.error('Error fetching leaderboard:', error);
-    }
-  }
-
-  function logout() {
-    localStorage.removeItem('currentUserId');
-    setRelatedProfiles([]);
-    setSuggestedChallenges([]);
-    setYourChallenges([]);
-    window.dispatchEvent(new Event('userChanged'));
-  }
-
-  if (loading) {
+  if (loading || yourChallengesLoading || leaderboardLoading) {
     return <PageLoader />;
   }
 
