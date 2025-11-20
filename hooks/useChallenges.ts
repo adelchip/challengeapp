@@ -224,3 +224,74 @@ export function useUserChallenges(userId: string | null | undefined): UseUserCha
     refetch: fetchUserChallenges
   };
 }
+
+// ============================================
+// PROFILE STATS HOOK
+// ============================================
+
+interface UseProfileStatsReturn {
+  /** Number of completed challenges */
+  completedChallengesCount: number;
+  /** Loading state */
+  loading: boolean;
+  /** Error state */
+  error: Error | null;
+  /** Manually trigger fetch */
+  refetch: () => Promise<void>;
+}
+
+/**
+ * Hook for fetching profile statistics (completed challenges count)
+ * 
+ * @param profileId - The profile ID to fetch stats for
+ * @returns Profile stats, loading state, and refetch function
+ * 
+ * @example
+ * const { completedChallengesCount, loading } = useProfileStats(profile.id);
+ */
+export function useProfileStats(profileId: string | null | undefined): UseProfileStatsReturn {
+  const [completedChallengesCount, setCompletedChallengesCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchProfileStats = async () => {
+    if (!profileId) {
+      setLoading(false);
+      setCompletedChallengesCount(0);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch completed challenges where user is a participant
+      const { data, error: fetchError } = await supabase
+        .from('challenges')
+        .select('id', { count: 'exact', head: false })
+        .contains('participants', [profileId])
+        .eq('status', 'completed');
+
+      if (fetchError) throw fetchError;
+
+      setCompletedChallengesCount(data?.length || 0);
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to fetch profile stats');
+      setError(error);
+      console.error('Error fetching profile stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProfileStats();
+  }, [profileId]);
+
+  return {
+    completedChallengesCount,
+    loading,
+    error,
+    refetch: fetchProfileStats
+  };
+}
