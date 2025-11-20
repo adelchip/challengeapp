@@ -6,11 +6,8 @@ import { Challenge } from '@/types';
 import { useAuth } from '@/hooks/useAuth';
 import { PageLoader } from '@/components/LoadingSpinner';
 import { ChallengeCard } from '@/components/ChallengeCard';
+import { ChallengeSearchFilters, StatusFilter, TypeFilter } from '@/components/ChallengeSearchFilters';
 import Link from 'next/link';
-import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
-
-type StatusFilter = 'all' | 'ongoing' | 'completed';
-type TypeFilter = 'all' | 'public' | 'private';
 
 export default function ChallengesPage() {
   const { currentUser } = useAuth();
@@ -103,106 +100,16 @@ export default function ChallengesPage() {
       </div>
 
       {/* Search and Filters */}
-      <div className="card bg-base-100 shadow-xl mb-6">
-        <div className="card-body p-4">
-          <div className="flex flex-col lg:flex-row gap-4">
-            {/* Search Input */}
-            <div className="flex-1">
-              <div className="form-control">
-                <div className="input-group">
-                  <span className="bg-base-200">
-                    <MagnifyingGlassIcon className="w-5 h-5" />
-                  </span>
-                  <input
-                    type="text"
-                    placeholder="Search challenges by title or description..."
-                    className="input input-bordered w-full"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                  {searchQuery && (
-                    <button 
-                      className="btn btn-ghost btn-square"
-                      onClick={() => setSearchQuery('')}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Filters */}
-            <div className="flex gap-3 items-center">
-              <FunnelIcon className="w-5 h-5 text-base-content/50" />
-              
-              {/* Status Filter */}
-              <select
-                className="select select-bordered"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-              >
-                <option value="all">All Status</option>
-                <option value="ongoing">Ongoing</option>
-                <option value="completed">Completed</option>
-              </select>
-
-              {/* Type Filter */}
-              <select
-                className="select select-bordered"
-                value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value as TypeFilter)}
-              >
-                <option value="all">All Types</option>
-                <option value="public">Public</option>
-                <option value="private">Private</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Active Filters Summary */}
-          {(searchQuery || statusFilter !== 'all' || typeFilter !== 'all') && (
-            <div className="flex gap-2 mt-3 flex-wrap">
-              <span className="text-sm opacity-70">Active filters:</span>
-              {searchQuery && (
-                <div className="badge badge-primary gap-2">
-                  Search: "{searchQuery}"
-                  <button onClick={() => setSearchQuery('')} className="hover:text-error">×</button>
-                </div>
-              )}
-              {statusFilter !== 'all' && (
-                <div className="badge badge-secondary gap-2">
-                  Status: {statusFilter}
-                  <button onClick={() => setStatusFilter('all')} className="hover:text-error">×</button>
-                </div>
-              )}
-              {typeFilter !== 'all' && (
-                <div className="badge badge-accent gap-2">
-                  Type: {typeFilter}
-                  <button onClick={() => setTypeFilter('all')} className="hover:text-error">×</button>
-                </div>
-              )}
-              <button 
-                className="badge badge-ghost gap-2 hover:badge-error"
-                onClick={() => {
-                  setSearchQuery('');
-                  setStatusFilter('all');
-                  setTypeFilter('all');
-                }}
-              >
-                Clear all
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Results Summary */}
-      <div className="mb-4 text-sm opacity-70">
-        Showing {filteredChallenges.length} of {challenges.length} challenges
-      </div>
+      <ChallengeSearchFilters
+        searchQuery={searchQuery}
+        statusFilter={statusFilter}
+        typeFilter={typeFilter}
+        onSearchChange={setSearchQuery}
+        onStatusChange={setStatusFilter}
+        onTypeChange={setTypeFilter}
+        resultsCount={filteredChallenges.length}
+        totalCount={challenges.length}
+      />
 
       {filteredChallenges.length === 0 ? (
         <div className="card bg-base-100 shadow-xl">
