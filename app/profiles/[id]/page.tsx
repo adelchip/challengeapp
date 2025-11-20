@@ -9,11 +9,14 @@ import { useProfileStats } from '@/hooks/useChallenges';
 import { MapPinIcon, KeyIcon } from '@heroicons/react/24/outline';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { StarIcon as StarIconOutline } from '@heroicons/react/24/outline';
+import { ToastContainer } from '@/components/Toast';
+import { useToast } from '@/hooks/useToast';
 
 export default function ViewProfilePage() {
   const router = useRouter();
   const params = useParams();
   const { currentUser, login, logout } = useAuth();
+  const { toasts, showToast, removeToast } = useToast();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const { completedChallengesCount, loading: statsLoading } = useProfileStats(profile?.id);
@@ -35,7 +38,7 @@ export default function ViewProfilePage() {
       setProfile(data);
     } catch (error) {
       console.error('Error fetching profile:', error);
-      alert('Profile not found');
+      showToast('Profile not found', 'error');
       router.push('/profiles');
     } finally {
       setLoading(false);
@@ -64,6 +67,8 @@ export default function ViewProfilePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-base-200 to-base-300">
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
+      
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
           {/* Header with Back Button */}

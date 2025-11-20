@@ -6,9 +6,12 @@ import { supabase } from '@/lib/supabase';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { StarIcon as StarIconOutline, XMarkIcon } from '@heroicons/react/24/outline';
 import { Skill } from '@/types';
+import { ToastContainer } from '@/components/Toast';
+import { useToast } from '@/hooks/useToast';
 
 export default function NewProfilePage() {
   const router = useRouter();
+  const { toasts, showToast, removeToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -56,7 +59,7 @@ export default function NewProfilePage() {
       router.push('/profiles');
     } catch (error) {
       console.error('Error creating profile:', error);
-      alert('Error creating profile');
+      showToast('Failed to create profile', 'error');
     } finally {
       setLoading(false);
     }
@@ -64,6 +67,8 @@ export default function NewProfilePage() {
 
   return (
     <div className="max-w-2xl mx-auto">
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
+      
       <h1 className="text-3xl font-bold mb-6">New Profile</h1>
 
       <div className="card bg-base-100 shadow-xl">

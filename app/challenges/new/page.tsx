@@ -5,10 +5,13 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Profile } from '@/types';
 import { useAuth } from '@/hooks/useAuth';
+import { ToastContainer } from '@/components/Toast';
+import { useToast } from '@/hooks/useToast';
 
 export default function NewChallengePage() {
   const router = useRouter();
   const { currentUser, checkAuth } = useAuth();
+  const { toasts, showToast, removeToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [aiStatus, setAiStatus] = useState<'idle' | 'analyzing' | 'success' | 'error'>('idle');
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -45,7 +48,7 @@ export default function NewChallengePage() {
       // Get current user
       const currentUserId = checkAuth();
       if (!currentUserId) {
-        alert('Please login to create a challenge');
+        showToast('Please login to create a challenge', 'warning');
         setLoading(false);
         return;
       }
@@ -93,7 +96,7 @@ export default function NewChallengePage() {
     } catch (error) {
       console.error('❌ Error creating challenge:', error);
       setAiStatus('error');
-      alert('Error creating challenge');
+      showToast('Failed to create challenge', 'error');
     } finally {
       setLoading(false);
     }
@@ -101,6 +104,8 @@ export default function NewChallengePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-base-200 to-base-300">
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
+      
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-3xl mx-auto">
           {/* Header */}

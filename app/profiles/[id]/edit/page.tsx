@@ -7,10 +7,13 @@ import { Profile, Skill } from '@/types';
 import { PageLoader } from '@/components/LoadingSpinner';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { StarIcon as StarIconOutline, XMarkIcon } from '@heroicons/react/24/outline';
+import { ToastContainer } from '@/components/Toast';
+import { useToast } from '@/hooks/useToast';
 
 export default function EditProfilePage() {
   const router = useRouter();
   const params = useParams();
+  const { toasts, showToast, removeToast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
@@ -51,7 +54,7 @@ export default function EditProfilePage() {
       setSkills(data.skills || []);
     } catch (error) {
       console.error('Error fetching profile:', error);
-      alert('Profile not found');
+      showToast('Profile not found', 'error');
       router.push('/profiles');
     } finally {
       setLoading(false);
@@ -93,7 +96,7 @@ export default function EditProfilePage() {
       router.push('/profiles');
     } catch (error) {
       console.error('Error updating profile:', error);
-      alert('Error updating profile');
+      showToast('Failed to update profile', 'error');
     } finally {
       setSaving(false);
     }
@@ -105,6 +108,8 @@ export default function EditProfilePage() {
 
   return (
     <div className="max-w-2xl mx-auto">
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
+      
       <h1 className="text-3xl font-bold mb-6">Edit Profile</h1>
 
       <div className="card bg-base-100 shadow-xl">

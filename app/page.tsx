@@ -13,6 +13,8 @@ import { PageLoader } from '@/components/LoadingSpinner';
 import { ProfileCard } from '@/components/ProfileCard';
 import { ChallengeCard } from '@/components/ChallengeCard';
 import { SuggestedChallenges } from '@/components/challenge/SuggestedChallenges';
+import { ToastContainer } from '@/components/Toast';
+import { useToast } from '@/hooks/useToast';
 import { MapPinIcon, StarIcon } from '@heroicons/react/24/solid';
 import { StarIcon as StarIconOutline } from '@heroicons/react/24/outline';
 
@@ -22,6 +24,7 @@ export default function Home() {
   const { challenges } = useChallenges({ status: 'ongoing' });
   const { challenges: yourChallenges, loading: yourChallengesLoading } = useUserChallenges(currentUser?.id);
   const { leaderboard, loading: leaderboardLoading } = useLeaderboard();
+  const { toasts, showToast, removeToast } = useToast();
   
   const [stats, setStats] = useState({ challenges: 0, profiles: 0 });
   const [relatedProfiles, setRelatedProfiles] = useState<ScoredProfile[]>([]);
@@ -87,7 +90,7 @@ export default function Home() {
       window.location.href = `/challenges/${challengeId}`;
     } catch (error) {
       console.error('Error joining challenge:', error);
-      alert('Error joining challenge');
+      showToast('Failed to join challenge', 'error');
     }
   }
 
@@ -97,6 +100,8 @@ export default function Home() {
 
   return (
     <div>
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
+      
       {/* Hero Section */}
       <div className="hero min-h-[60vh] bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
         <div className="hero-content text-center">
