@@ -15,6 +15,7 @@ import { MessageList } from '@/components/challenge/MessageList';
 import { RatingModal } from '@/components/challenge/RatingModal';
 import { ProfileAutocomplete } from '@/components/ProfileAutocomplete';
 import { ToastContainer } from '@/components/Toast';
+import { ConfirmModal } from '@/components/ConfirmModal';
 import { PageLoader } from '@/components/LoadingSpinner';
 
 export default function ChallengeDetailPage() {
@@ -29,6 +30,8 @@ export default function ChallengeDetailPage() {
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [existingRatings, setExistingRatings] = useState<ChallengeRating[]>([]);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [participantToRemove, setParticipantToRemove] = useState<string | null>(null);
 
   const isCreator = currentUser?.id === challenge?.created_by;
   
@@ -119,12 +122,16 @@ export default function ChallengeDetailPage() {
   async function handleRemoveParticipant(participantId: string) {
     if (!challenge || !isCreator) return;
 
-    if (!confirm('Are you sure you want to remove this participant?')) {
-      return;
-    }
+    // Show confirmation modal
+    setParticipantToRemove(participantId);
+    setShowConfirmModal(true);
+  }
+
+  async function confirmRemoveParticipant() {
+    if (!challenge || !participantToRemove) return;
 
     try {
-      const updatedParticipants = challenge.participants.filter(id => id !== participantId);
+      const updatedParticipants = challenge.participants.filter(id => id !== participantToRemove);
       const { error } = await supabase
         .from('challenges')
         .update({ participants: updatedParticipants })
@@ -137,6 +144,9 @@ export default function ChallengeDetailPage() {
     } catch (error) {
       console.error('Error removing participant:', error);
       showToast('Failed to remove participant', 'error');
+    } finally {
+      setShowConfirmModal(false);
+      setParticipantToRemove(null);
     }
   }
 
@@ -378,6 +388,21 @@ export default function ChallengeDetailPage() {
         onRatingChange={handleRatingChange}
         onSubmit={finalizeCompletion}
         onClose={() => setShowRatingModal(false)}
+      />
+
+      {/* Confirm Remove Participant Modal */}
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        title="Remove Participant"
+        message="Are you sure you want to remove this participant from the challenge?"
+        confirmText="Remove"
+        cancelText="Cancel"
+        confirmVariant="error"
+        onConfirm={confirmRemoveParticipant}
+        onCancel={() => {
+          setShowConfirmModal(false);
+          setParticipantToRemove(null);
+        }}
       />
       </div>
     </div>
