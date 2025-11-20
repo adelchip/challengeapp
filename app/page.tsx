@@ -5,6 +5,9 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { Profile, Challenge } from '@/types';
 import { useAuth } from '@/hooks/useAuth';
+import { PageLoader } from '@/components/LoadingSpinner';
+import { ProfileCard } from '@/components/ProfileCard';
+import { ChallengeCard } from '@/components/ChallengeCard';
 import { MapPinIcon, StarIcon } from '@heroicons/react/24/solid';
 import { StarIcon as StarIconOutline } from '@heroicons/react/24/outline';
 
@@ -282,11 +285,7 @@ export default function Home() {
   }
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[60vh]">
-        <span className="loading loading-spinner loading-lg"></span>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   return (
@@ -360,54 +359,7 @@ export default function Home() {
                 <h2 className="text-3xl font-bold mb-6">People Similar to You</h2>
                 <div className="grid gap-4 md:grid-cols-2">
                   {relatedProfiles.map((profile) => (
-                    <div key={profile.id} className="card bg-base-100 shadow-xl">
-                      <div className="card-body">
-                        <div className="flex items-start gap-3">
-                          {profile.photo && (
-                            <div className="avatar">
-                              <div className="w-12 rounded-full">
-                                <img src={profile.photo} alt={profile.name} />
-                              </div>
-                            </div>
-                          )}
-                          <div className="flex-1">
-                            <h3 className="card-title text-lg">{profile.name}</h3>
-                            <p className="text-sm opacity-70">{profile.role}</p>
-                            <p className="text-sm flex items-center gap-1">
-                              <MapPinIcon className="w-4 h-4" />
-                              {profile.country}
-                            </p>
-                          </div>
-                        </div>
-                        
-                        <div className="flex flex-col gap-1 mt-3">
-                          {(profile as any).matchingSkills && (profile as any).matchingSkills.length > 0 ? (
-                            (profile as any).matchingSkills.slice(0, 5).map((skill: any, idx: number) => (
-                              <div key={idx} className="flex items-center justify-between text-sm">
-                                <span className="font-medium">{skill.name}</span>
-                                <div className="flex gap-0.5">
-                                  {[1, 2, 3, 4, 5].map(star => (
-                                    star <= skill.profileRating ? (
-                                      <StarIcon key={star} className="w-4 h-4 text-warning" />
-                                    ) : (
-                                      <StarIconOutline key={star} className="w-4 h-4 text-warning" />
-                                    )
-                                  ))}
-                                </div>
-                              </div>
-                            ))
-                          ) : (
-                            <p className="text-sm opacity-50">No matching skills</p>
-                          )}
-                        </div>
-                        
-                        <div className="card-actions justify-end mt-4">
-                          <Link href={`/profiles/${profile.id}`} className="btn btn-sm btn-primary">
-                            View Profile
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
+                    <ProfileCard key={profile.id} profile={profile} />
                   ))}
                 </div>
               </div>
@@ -485,33 +437,7 @@ export default function Home() {
           <h2 className="text-3xl font-bold mb-6">Your Challenges</h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {yourChallenges.map((challenge) => (
-              <div key={challenge.id} className="card bg-base-100 shadow-xl">
-                <div className="card-body">
-                  <h3 className="card-title text-base">{challenge.title}</h3>
-                  <p className="text-sm line-clamp-3 opacity-70">{challenge.description}</p>
-                  
-                  <div className="flex gap-2 mt-2">
-                    <span className={`badge ${challenge.type === 'public' ? 'badge-success' : 'badge-warning'} badge-sm`}>
-                      {challenge.type}
-                    </span>
-                    <span className={`badge ${challenge.status === 'completed' ? 'badge-success' : 'badge-info'} badge-sm`}>
-                      {challenge.status}
-                    </span>
-                  </div>
-
-                  {challenge.participants && challenge.participants.length > 0 && (
-                    <div className="text-xs opacity-70 mt-2">
-                      {challenge.participants.length} participant{challenge.participants.length !== 1 ? 's' : ''}
-                    </div>
-                  )}
-                  
-                  <div className="card-actions justify-end mt-4">
-                    <Link href={`/challenges/${challenge.id}`} className="btn btn-sm btn-primary">
-                      View Details
-                    </Link>
-                  </div>
-                </div>
-              </div>
+              <ChallengeCard key={challenge.id} challenge={challenge} />
             ))}
           </div>
         </div>
@@ -522,39 +448,12 @@ export default function Home() {
           <h2 className="text-3xl font-bold mb-6">Challenges Suggested for You</h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {suggestedChallenges.map((challenge) => (
-              <div key={challenge.id} className="card bg-base-100 shadow-xl">
-                <div className="card-body">
-                  <h3 className="card-title text-base">{challenge.title}</h3>
-                  <p className="text-sm line-clamp-3 opacity-70">{challenge.description}</p>
-                  
-                  <div className="flex gap-2 mt-2">
-                    <span className={`badge ${challenge.type === 'public' ? 'badge-success' : 'badge-warning'} badge-sm`}>
-                      {challenge.type}
-                    </span>
-                    <span className="badge badge-info badge-sm">
-                      {challenge.status}
-                    </span>
-                  </div>
-
-                  {challenge.participants && challenge.participants.length > 0 && (
-                    <div className="text-xs opacity-70 mt-2">
-                      {challenge.participants.length} participant{challenge.participants.length !== 1 ? 's' : ''}
-                    </div>
-                  )}
-                  
-                  <div className="card-actions justify-end mt-4 gap-2">
-                    <Link href={`/challenges/${challenge.id}`} className="btn btn-sm btn-ghost">
-                      View Details
-                    </Link>
-                    <button 
-                      onClick={() => joinChallenge(challenge.id)} 
-                      className="btn btn-sm btn-primary"
-                    >
-                      Join Challenge
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <ChallengeCard 
+                key={challenge.id} 
+                challenge={challenge} 
+                onJoin={joinChallenge}
+                showJoinButton
+              />
             ))}
           </div>
         </div>
