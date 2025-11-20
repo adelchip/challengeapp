@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Profile, Skill } from '@/types';
+import { PageLoader } from '@/components/LoadingSpinner';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { StarIcon as StarIconOutline, XMarkIcon } from '@heroicons/react/24/outline';
 
@@ -99,11 +100,7 @@ export default function EditProfilePage() {
   }
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[50vh]">
-        <span className="loading loading-spinner loading-lg"></span>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   return (
