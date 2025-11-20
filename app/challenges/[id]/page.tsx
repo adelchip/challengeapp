@@ -110,6 +110,29 @@ export default function ChallengeDetailPage() {
     }
   }
 
+  async function handleRemoveParticipant(participantId: string) {
+    if (!challenge || !isCreator) return;
+
+    if (!confirm('Are you sure you want to remove this participant?')) {
+      return;
+    }
+
+    try {
+      const updatedParticipants = challenge.participants.filter(id => id !== participantId);
+      const { error } = await supabase
+        .from('challenges')
+        .update({ participants: updatedParticipants })
+        .eq('id', challenge.id);
+
+      if (error) throw error;
+
+      refetchChallenge(); // Refresh challenge data
+    } catch (error) {
+      console.error('Error removing participant:', error);
+      alert('Error removing participant');
+    }
+  }
+
   async function completeChallenge() {
     if (!challenge) return;
     
@@ -307,6 +330,9 @@ export default function ChallengeDetailPage() {
             currentUser={currentUser}
             isCreator={isCreator}
             creatorId={challenge.created_by}
+            onJoin={() => currentUser && handleJoin(currentUser.id)}
+            onLeave={() => currentUser && handleLeave(currentUser.id)}
+            onRemoveParticipant={handleRemoveParticipant}
           />
 
           {/* Add Participant - Only show when challenge is ongoing */}

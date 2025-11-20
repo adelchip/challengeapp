@@ -20,6 +20,8 @@ interface ParticipantsListProps {
   onJoin?: () => void;
   /** Callback when user wants to leave */
   onLeave?: () => void;
+  /** Callback when creator removes a participant */
+  onRemoveParticipant?: (participantId: string) => void;
 }
 
 /**
@@ -32,7 +34,8 @@ export function ParticipantsList({
   isCreator,
   creatorId,
   onJoin,
-  onLeave
+  onLeave,
+  onRemoveParticipant
 }: ParticipantsListProps) {
   const isParticipant = currentUser && participants.some(p => p.id === currentUser.id);
 
@@ -66,6 +69,7 @@ export function ParticipantsList({
           <div className="space-y-3">
             {participants.map(participant => {
               const isCreatorProfile = creatorId && participant.id === creatorId;
+              const canRemove = isCreator && !isCreatorProfile && onRemoveParticipant;
               
               return (
                 <div
@@ -100,6 +104,17 @@ export function ParticipantsList({
                     </div>
                     <p className="text-xs opacity-70 truncate">{participant.role}</p>
                   </div>
+                  {canRemove && (
+                    <button
+                      onClick={() => onRemoveParticipant(participant.id)}
+                      className="btn btn-circle btn-sm btn-error"
+                      title="Remove participant"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
                 </div>
               );
             })}
