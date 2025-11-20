@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Profile } from '@/types';
+import { useAuth } from '@/hooks/useAuth';
 import { MapPinIcon, KeyIcon } from '@heroicons/react/24/outline';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { StarIcon as StarIconOutline } from '@heroicons/react/24/outline';
@@ -11,9 +12,10 @@ import { StarIcon as StarIconOutline } from '@heroicons/react/24/outline';
 export default function ViewProfilePage() {
   const router = useRouter();
   const params = useParams();
+  const { currentUser, login, logout } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isCurrentUser, setIsCurrentUser] = useState(false);
+  const isCurrentUser = currentUser?.id === profile?.id;
 
   useEffect(() => {
     fetchProfile();
@@ -29,10 +31,6 @@ export default function ViewProfilePage() {
 
       if (error) throw error;
       setProfile(data);
-      
-      // Check if this is the current logged-in user
-      const currentUserId = localStorage.getItem('currentUserId');
-      setIsCurrentUser(currentUserId === data.id);
     } catch (error) {
       console.error('Error fetching profile:', error);
       alert('Profile not found');
@@ -42,17 +40,14 @@ export default function ViewProfilePage() {
     }
   }
 
-  function loginAs() {
+  function handleLoginAs() {
     if (!profile) return;
-    localStorage.setItem('currentUserId', profile.id);
-    window.dispatchEvent(new Event('userChanged'));
+    login(profile.id);
     router.push('/');
   }
 
-  function logout() {
-    localStorage.removeItem('currentUserId');
-    setIsCurrentUser(false);
-    window.dispatchEvent(new Event('userChanged'));
+  function handleLogout() {
+    logout();
   }
 
   if (loading) {
@@ -206,7 +201,7 @@ export default function ViewProfilePage() {
                       </svg>
                       Edit Profile
                     </button>
-                    <button onClick={logout} className="btn btn-error btn-lg gap-2">
+                    <button onClick={handleLogout} className="btn btn-error btn-lg gap-2">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                       </svg>
@@ -214,7 +209,7 @@ export default function ViewProfilePage() {
                     </button>
                   </>
                 ) : (
-                  <button onClick={loginAs} className="btn btn-primary btn-lg gap-2">
+                  <button onClick={handleLoginAs} className="btn btn-primary btn-lg gap-2">
                     <KeyIcon className="w-5 h-5" />
                     Login as {profile.name}
                   </button>
