@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { Profile } from '@/types';
+import { Profile, Skill } from '@/types';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { StarIcon as StarIconOutline, XMarkIcon } from '@heroicons/react/24/outline';
 
