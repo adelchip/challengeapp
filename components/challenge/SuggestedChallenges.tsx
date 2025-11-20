@@ -11,13 +11,16 @@ interface SuggestedChallengesProps {
   challenges: Challenge[];
   /** Callback when user joins a challenge */
   onJoin?: (challengeId: string) => void;
+  /** Whether user is logged in */
+  showWhenLoggedIn?: boolean;
 }
 
 /**
  * Grid of AI-suggested challenges for the current user
  * Only shown when user is logged in and has matching challenges
  */
-export function SuggestedChallenges({ challenges, onJoin }: SuggestedChallengesProps) {
+export function SuggestedChallenges({ challenges, onJoin, showWhenLoggedIn = true }: SuggestedChallengesProps) {
+  // Don't show if no challenges or user should be logged in but isn't
   if (challenges.length === 0) return null;
 
   return (

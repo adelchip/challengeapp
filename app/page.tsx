@@ -250,10 +250,12 @@ export default function Home() {
         </div>
       )}
 
-      <SuggestedChallenges 
-        challenges={suggestedChallenges}
-        onJoin={joinChallenge}
-      />
+      {currentUser && (
+        <SuggestedChallenges 
+          challenges={suggestedChallenges}
+          onJoin={joinChallenge}
+        />
+      )}
     </div>
   );
 }
