@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import { ClientLayout } from "@/components/ClientLayout";
 
 export const metadata: Metadata = {
   title: "Challenge App - MVP",
@@ -17,7 +18,7 @@ export default function RootLayout({
       <body className="min-h-screen bg-base-200" suppressHydrationWarning>
         <Navbar />
         <main className="container mx-auto px-4 py-8">
-          {children}
+          <ClientLayout>{children}</ClientLayout>
         </main>
       </body>
     </html>
