@@ -12,6 +12,7 @@ import { SuggestedProfiles } from '@/components/challenge/SuggestedProfiles';
 import { ParticipantsList } from '@/components/challenge/ParticipantsList';
 import { MessageList } from '@/components/challenge/MessageList';
 import { RatingModal } from '@/components/challenge/RatingModal';
+import { ProfileAutocomplete } from '@/components/ProfileAutocomplete';
 import { PageLoader } from '@/components/LoadingSpinner';
 
 export default function ChallengeDetailPage() {
@@ -346,18 +347,11 @@ export default function ChallengeDetailPage() {
                   Add Participant
                 </h2>
                 <div className="divider my-1"></div>
-                <select
-                  className="select select-bordered w-full max-w-xs"
-                  onChange={(e) => e.target.value && handleJoin(e.target.value)}
-                  value=""
-                >
-                  <option value="">Select a profile...</option>
-                  {profiles.filter(p => !challenge.participants.includes(p.id)).map((profile: Profile) => (
-                    <option key={profile.id} value={profile.id}>
-                      {profile.name}
-                    </option>
-                  ))}
-                </select>
+                <ProfileAutocomplete
+                  profiles={profiles.filter(p => !challenge.participants.includes(p.id))}
+                  onSelect={handleJoin}
+                  placeholder="Search by name, role, or business unit..."
+                />
               </div>
             </div>
           )}
