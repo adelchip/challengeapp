@@ -290,129 +290,189 @@ export default function ChallengeDetailPage() {
   const isCreator = currentUserId === challenge.created_by;
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">{challenge.title}</h1>
-        <div className="flex gap-2">
-          {challenge.status === 'ongoing' && isCreator && (
-            <button 
-              onClick={completeChallenge} 
-              className="btn btn-success btn-sm"
-            >
-              ✓ Complete Challenge
-            </button>
-          )}
-          <button onClick={() => router.back()} className="btn btn-ghost btn-sm">
-            ← Back
-          </button>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-base-200 to-base-300">
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-3">
+                {challenge.title}
+              </h1>
+              <div className="flex flex-wrap gap-2">
+                <span className={`badge badge-lg gap-2 ${challenge.type === 'public' ? 'badge-success' : 'badge-warning'}`}>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    {challenge.type === 'public' ? (
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    ) : (
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    )}
+                  </svg>
+                  {challenge.type === 'public' ? 'Public' : 'Private'}
+                </span>
+                <span className={`badge badge-lg gap-2 ${challenge.status === 'completed' ? 'badge-success' : 'badge-info'}`}>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    {challenge.status === 'completed' ? (
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    ) : (
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    )}
+                  </svg>
+                  {challenge.status === 'completed' ? 'Completed' : 'Ongoing'}
+                </span>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              {challenge.status === 'ongoing' && isCreator && (
+                <button 
+                  onClick={completeChallenge} 
+                  className="btn btn-success btn-lg gap-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Complete Challenge
+                </button>
+              )}
+              <button onClick={() => router.back()} className="btn btn-ghost btn-lg">
+                ← Back
+              </button>
+            </div>
+          </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Main Info */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="card bg-base-100 shadow-xl">
-            <div className="card-body">
-              <div className="flex justify-between items-start">
-                <h2 className="card-title">Challenge Information</h2>
-                <div className="flex gap-2">
-                  <span className={`badge ${challenge.type === 'public' ? 'badge-success' : 'badge-warning'}`}>
-                    {challenge.type === 'public' ? 'Public' : 'Private'}
-                  </span>
-                  <span className={`badge ${challenge.status === 'completed' ? 'badge-success' : 'badge-info'}`}>
-                    {challenge.status === 'completed' ? 'Completed' : 'Ongoing'}
-                  </span>
+          <div className="grid gap-6 lg:grid-cols-3">
+            {/* Main Info */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Challenge Description */}
+              <div className="card bg-base-100 shadow-2xl">
+                <div className="card-body">
+                  <h2 className="card-title text-xl flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Challenge Information
+                  </h2>
+                  <div className="divider my-2"></div>
+                  <p className="text-base leading-relaxed">{challenge.description}</p>
                 </div>
               </div>
-              <p className="mt-4">{challenge.description}</p>
-            </div>
-          </div>
 
-          {/* Collaboration Room */}
-          <div className="card bg-base-100 shadow-xl">
-            <div className="card-body">
-              <h2 className="card-title">💬 Collaboration Room</h2>
-              
-              {participants.length === 0 ? (
-                <p className="text-sm opacity-70">Add participants to start collaboration</p>
-              ) : (
-                <>
-                  <div className="bg-base-200 rounded-lg p-4 h-64 overflow-y-auto mb-4">
-                    {messages.length === 0 ? (
-                      <p className="text-sm opacity-70 text-center">No messages yet</p>
-                    ) : (
-                      <div className="space-y-3">
-                        {messages.map((message) => {
-                          const sender = allProfiles.find(p => p.id === message.sender_profile_id);
-                          return (
-                            <div key={message.id} className="chat chat-start">
-                              <div className="chat-header text-xs opacity-70">
-                                {sender?.name || 'Unknown'}
-                                <time className="ml-2">{new Date(message.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</time>
-                              </div>
-                              <div className="chat-bubble">{message.content}</div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-
-                  {challenge.status === 'ongoing' && (
-                    <div className="form-control">
-                      <label className="label">
-                        <span className="label-text text-xs">Send as:</span>
-                      </label>
-                      <select
-                        className="select select-bordered select-sm mb-2"
-                        value={selectedSender}
-                        onChange={(e) => setSelectedSender(e.target.value)}
-                      >
-                        <option value="">Select profile...</option>
-                        {participants.map(p => (
-                          <option key={p.id} value={p.id}>{p.name}</option>
-                        ))}
-                      </select>
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          placeholder="Write a message..."
-                          className="input input-bordered flex-1"
-                          value={newMessage}
-                          onChange={(e) => setNewMessage(e.target.value)}
-                          onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                        />
-                        <button 
-                          onClick={sendMessage} 
-                          className="btn btn-primary"
-                          disabled={!selectedSender || !newMessage.trim()}
-                        >
-                          Send
-                        </button>
-                      </div>
-                    </div>
-                  )}
+              {/* Collaboration Room */}
+              <div className="card bg-base-100 shadow-2xl">
+                <div className="card-body">
+                  <h2 className="card-title text-xl flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    Collaboration Room
+                  </h2>
+                  <div className="divider my-2"></div>
                   
-                  {challenge.status === 'completed' && (
+                  {participants.length === 0 ? (
                     <div className="alert alert-info">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                      <span className="text-sm">Challenge completed - Messages are read-only</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                      <span>Add participants to start collaboration</span>
                     </div>
-                  )}
-                </>
-              )}
-            </div>
-          </div>
-        </div>
+                  ) : (
+                    <>
+                      <div className="bg-gradient-to-br from-base-200 to-base-300 rounded-xl p-4 h-80 overflow-y-auto mb-4 shadow-inner">
+                        {messages.length === 0 ? (
+                          <div className="flex items-center justify-center h-full">
+                            <p className="text-sm opacity-50">No messages yet. Start the conversation!</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-4">
+                            {messages.map((message) => {
+                              const sender = allProfiles.find(p => p.id === message.sender_profile_id);
+                              return (
+                                <div key={message.id} className="chat chat-start">
+                                  <div className="chat-image avatar">
+                                    <div className="w-8 rounded-full">
+                                      <img 
+                                        src={sender?.photo || `https://ui-avatars.com/api/?name=${sender?.name}`} 
+                                        alt={sender?.name}
+                                      />
+                                    </div>
+                                  </div>
+                                  <div className="chat-header text-xs opacity-70 mb-1">
+                                    {sender?.name || 'Unknown'}
+                                    <time className="ml-2">{new Date(message.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</time>
+                                  </div>
+                                  <div className="chat-bubble chat-bubble-primary">{message.content}</div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
 
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Suggested Profiles - Only show when challenge is ongoing */}
-          {challenge.status === 'ongoing' && suggestedProfiles.length > 0 ? (
-            <div className="card bg-base-100 shadow-xl">
-              <div className="card-body">
-                <h2 className="card-title text-sm">Suggested Profiles ({suggestedProfiles.length})</h2>
-                <p className="text-xs opacity-70 mb-2">Ordered by matching skill rating</p>
+                      {challenge.status === 'ongoing' ? (
+                        <div className="space-y-3">
+                          <div className="form-control">
+                            <label className="label">
+                              <span className="label-text font-semibold">Send as:</span>
+                            </label>
+                            <select
+                              className="select select-bordered select-lg w-full"
+                              value={selectedSender}
+                              onChange={(e) => setSelectedSender(e.target.value)}
+                            >
+                              <option value="">Select your profile...</option>
+                              {participants.map(p => (
+                                <option key={p.id} value={p.id}>{p.name}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              placeholder="Type your message..."
+                              className="input input-bordered input-lg flex-1"
+                              value={newMessage}
+                              onChange={(e) => setNewMessage(e.target.value)}
+                              onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                            />
+                            <button 
+                              onClick={sendMessage} 
+                              className="btn btn-primary btn-lg gap-2"
+                              disabled={!selectedSender || !newMessage.trim()}
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                              </svg>
+                              Send
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="alert alert-success">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                          </svg>
+                          <span>Challenge completed - Messages are read-only</span>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Sidebar */}
+            <div className="space-y-6">
+              {/* Suggested Profiles - Only show when challenge is ongoing */}
+              {challenge.status === 'ongoing' && suggestedProfiles.length > 0 ? (
+                <div className="card bg-base-100 shadow-2xl">
+                  <div className="card-body">
+                    <h2 className="card-title text-lg flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                      </svg>
+                      Suggested Profiles ({suggestedProfiles.length})
+                    </h2>
+                    <p className="text-xs opacity-70 mb-3">Ordered by matching skill rating</p>
                 <div className="space-y-2">
                   {suggestedProfiles.map((profile, idx) => (
                     <div key={profile.id} className="flex items-center gap-2 p-2 bg-base-200 rounded">
@@ -462,62 +522,76 @@ export default function ChallengeDetailPage() {
           ) : null}
 
           {/* Participants */}
-          <div className="card bg-base-100 shadow-xl">
+          <div className="card bg-base-100 shadow-2xl">
             <div className="card-body">
-              <h2 className="card-title text-sm flex items-center gap-2">
+              <h2 className="card-title text-lg flex items-center gap-2">
                 <UserGroupIcon className="w-5 h-5" />
                 Participants ({participants.length})
               </h2>
+              <div className="divider my-1"></div>
               {participants.length === 0 ? (
-                <p className="text-xs opacity-70">No participants yet</p>
+                <div className="alert alert-warning">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  <span className="text-sm">No participants yet</span>
+                </div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {participants.map((profile) => {
                     const isCreator = profile.id === challenge.created_by;
                     return (
                       <div 
                         key={profile.id} 
-                        className={`flex items-center gap-2 p-2 rounded ${
-                          isCreator ? 'bg-primary/10 border-2 border-primary' : 'bg-base-200'
+                        className={`flex items-center gap-3 p-3 rounded-lg transition-all ${
+                          isCreator ? 'bg-gradient-to-r from-primary/20 to-secondary/20 border-2 border-primary shadow-md' : 'bg-base-200 hover:bg-base-300'
                         }`}
                       >
                         <div className="avatar">
-                          <div className="w-10 rounded-full">
+                          <div className={`w-12 rounded-full ${isCreator ? 'ring ring-primary ring-offset-base-100 ring-offset-2' : ''}`}>
                             <img src={profile.photo || `https://ui-avatars.com/api/?name=${profile.name}`} alt={profile.name} />
                           </div>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <Link href={`/profiles/${profile.id}`} className="font-semibold text-sm hover:underline truncate">
                               {profile.name}
                             </Link>
                             {isCreator && (
-                              <span className="badge badge-primary badge-xs">Creator</span>
+                              <span className="badge badge-primary badge-sm gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                                </svg>
+                                Creator
+                              </span>
                             )}
                           </div>
                           <p className="text-xs opacity-70 truncate">{profile.role}</p>
                           {challenge.status === 'completed' && ratings[profile.id] && (
-                            <div className="flex items-center gap-1 mt-1">
-                              <span className="text-xs">Rating:</span>
+                            <div className="flex items-center gap-1 mt-2">
+                              <span className="text-xs font-medium">Rating:</span>
                               <div className="flex gap-0.5">
                                 {[1, 2, 3, 4, 5].map((star) => (
                                   star <= ratings[profile.id] ? (
                                     <StarIcon key={star} className="w-3 h-3 text-warning" />
                                   ) : (
-                                    <StarIconOutline key={star} className="w-3 h-3 text-warning" />
+                                    <StarIconOutline key={star} className="w-3 h-3 text-warning opacity-30" />
                                   )
                                 ))}
                               </div>
-                              <span className="text-xs font-semibold">{ratings[profile.id]}/5</span>
+                              <span className="text-xs font-semibold badge badge-sm badge-warning">{ratings[profile.id]}/5</span>
                             </div>
                           )}
                         </div>
                         {challenge.status === 'ongoing' && !isCreator && (
                           <button
                             onClick={() => removeParticipant(profile.id)}
-                            className="btn btn-xs btn-error"
+                            className="btn btn-sm btn-error btn-circle"
+                            title="Remove participant"
                           >
-                            Remove
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
                           </button>
                         )}
                       </div>
@@ -530,15 +604,21 @@ export default function ChallengeDetailPage() {
 
           {/* Add Participant - Only show when challenge is ongoing */}
           {challenge.status === 'ongoing' && availableProfiles.length > 0 && (
-            <div className="card bg-base-100 shadow-xl">
+            <div className="card bg-base-100 shadow-2xl">
               <div className="card-body">
-                <h2 className="card-title text-sm">➕ Add Participant</h2>
+                <h2 className="card-title text-lg flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                  </svg>
+                  Add Participant
+                </h2>
+                <div className="divider my-1"></div>
                 <select
-                  className="select select-bordered select-sm"
+                  className="select select-bordered select-lg w-full"
                   onChange={(e) => e.target.value && addParticipant(e.target.value)}
                   value=""
                 >
-                  <option value="">Select profile...</option>
+                  <option value="">Select a profile to add...</option>
                   {availableProfiles.map((profile) => (
                     <option key={profile.id} value={profile.id}>
                       {profile.name} - {profile.role}
@@ -550,6 +630,7 @@ export default function ChallengeDetailPage() {
           )}
         </div>
       </div>
+    </div>
 
       {/* Rating Modal */}
       {showRatingModal && (
@@ -629,6 +710,7 @@ export default function ChallengeDetailPage() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

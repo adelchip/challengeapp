@@ -306,141 +306,191 @@ export default function Home() {
 
   return (
     <div>
-      {!currentUser && (
-        <div className="hero min-h-[20vh]">
-          <div className="hero-content text-center">
-            <div className="max-w-md">
-              <div className="flex gap-4 justify-center">
-                <Link href="/profiles" className="btn btn-secondary">
-                  Login as Profile
-                </Link>
+      {/* Hero Section */}
+      <div className="hero min-h-[60vh] bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
+        <div className="hero-content text-center">
+          <div className="max-w-3xl">
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-6">
+              Turn Skills into Action
+            </h1>
+            <p className="text-xl mb-8 opacity-80">
+              Connect with talented colleagues, join exciting challenges, and grow together. 
+              Your next collaboration starts here.
+            </p>
+            <div className="flex gap-4 justify-center flex-wrap">
+              {!currentUser ? (
+                <>
+                  <Link href="/profiles" className="btn btn-primary btn-lg">
+                    Get Started
+                  </Link>
+                  <Link href="/challenges" className="btn btn-outline btn-lg">
+                    Explore Challenges
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link href="/challenges/new" className="btn btn-primary btn-lg">
+                    Create Challenge
+                  </Link>
+                  <Link href="/challenges" className="btn btn-outline btn-lg">
+                    Browse Challenges
+                  </Link>
+                </>
+              )}
+            </div>
+            
+            {/* Stats */}
+            <div className="stats shadow mt-12 bg-base-100/80 backdrop-blur">
+              <div className="stat place-items-center">
+                <div className="stat-title">Active Challenges</div>
+                <div className="stat-value text-primary">{stats.challenges}</div>
+                <div className="stat-desc">Join the action</div>
               </div>
+              
+              <div className="stat place-items-center">
+                <div className="stat-title">Talented Profiles</div>
+                <div className="stat-value text-secondary">{stats.profiles}</div>
+                <div className="stat-desc">Ready to collaborate</div>
+              </div>
+              
+              {currentUser && yourChallenges.length > 0 && (
+                <div className="stat place-items-center">
+                  <div className="stat-title">Your Challenges</div>
+                  <div className="stat-value text-accent">{yourChallenges.length}</div>
+                  <div className="stat-desc">Keep going!</div>
+                </div>
+              )}
             </div>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* Leaderboard Section */}
-      {leaderboard.length > 0 && (
+      {/* Combined Section: People Similar to You (2/3) + Leaderboard (1/3) */}
+      {(currentUser && relatedProfiles.length > 0) || leaderboard.length > 0 ? (
         <div className="container mx-auto px-4 py-8">
-          <h2 className="text-3xl font-bold mb-6">Leaderboard - Top 10</h2>
-          <div className="card bg-base-100 shadow-xl">
-            <div className="card-body p-0">
-              <div className="overflow-x-auto">
-                <table className="table table-zebra">
-                  <thead>
-                    <tr>
-                      <th className="w-16">Rank</th>
-                      <th>Profile</th>
-                      <th className="text-center">Completed</th>
-                      <th className="text-center">Avg Rating</th>
-                      <th className="text-right">Score</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {leaderboard.map((entry, index) => (
-                      <tr key={entry.profile.id} className={currentUser?.id === entry.profile.id ? 'bg-primary/10' : ''}>
-                        <td className="font-bold text-center">
-                          {index === 0 && <span className="text-2xl">🥇</span>}
-                          {index === 1 && <span className="text-2xl">🥈</span>}
-                          {index === 2 && <span className="text-2xl">🥉</span>}
-                          {index > 2 && <span className="text-lg">#{index + 1}</span>}
-                        </td>
-                        <td>
-                          <Link href={`/profiles/${entry.profile.id}`} className="flex items-center gap-3 hover:underline">
-                            {entry.profile.photo && (
-                              <div className="avatar">
-                                <div className="w-10 rounded-full">
-                                  <img src={entry.profile.photo} alt={entry.profile.name} />
-                                </div>
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* People Similar to You - 2/3 width */}
+            {currentUser && relatedProfiles.length > 0 && (
+              <div className="lg:w-2/3">
+                <h2 className="text-3xl font-bold mb-6">People Similar to You</h2>
+                <div className="grid gap-4 md:grid-cols-2">
+                  {relatedProfiles.map((profile) => (
+                    <div key={profile.id} className="card bg-base-100 shadow-xl">
+                      <div className="card-body">
+                        <div className="flex items-start gap-3">
+                          {profile.photo && (
+                            <div className="avatar">
+                              <div className="w-12 rounded-full">
+                                <img src={profile.photo} alt={profile.name} />
                               </div>
-                            )}
-                            <div>
-                              <div className="font-bold">{entry.profile.name}</div>
-                              <div className="text-sm opacity-50">{entry.profile.business_unit}</div>
                             </div>
-                          </Link>
-                        </td>
-                        <td className="text-center">
-                          <div className="badge badge-success">{entry.completedChallenges}</div>
-                        </td>
-                        <td className="text-center">
-                          {entry.totalRatings > 0 ? (
-                            <div className="flex items-center justify-center gap-1">
-                              <StarIcon className="w-4 h-4 text-warning" />
-                              <span className="font-semibold">{entry.averageRating.toFixed(1)}</span>
-                            </div>
-                          ) : (
-                            <span className="text-sm opacity-50">N/A</span>
                           )}
-                        </td>
-                        <td className="text-right">
-                          <span className="font-bold text-primary">{entry.score.toFixed(0)}</span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {currentUser && relatedProfiles.length > 0 && (
-        <div className="container mx-auto px-4 py-8">
-          <h2 className="text-3xl font-bold mb-6">People Similar to You</h2>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {relatedProfiles.map((profile) => (
-              <div key={profile.id} className="card bg-base-100 shadow-xl">
-                <div className="card-body">
-                  <div className="flex items-start gap-3">
-                    {profile.photo && (
-                      <div className="avatar">
-                        <div className="w-12 rounded-full">
-                          <img src={profile.photo} alt={profile.name} />
-                        </div>
-                      </div>
-                    )}
-                    <div className="flex-1">
-                      <h3 className="card-title text-lg">{profile.name}</h3>
-                      <p className="text-sm opacity-70">{profile.role}</p>
-                      <p className="text-sm flex items-center gap-1">
-                        <MapPinIcon className="w-4 h-4" />
-                        {profile.country}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-col gap-1 mt-3">
-                    {(profile as any).matchingSkills && (profile as any).matchingSkills.length > 0 ? (
-                      (profile as any).matchingSkills.slice(0, 5).map((skill: any, idx: number) => (
-                        <div key={idx} className="flex items-center justify-between text-sm">
-                          <span className="font-medium">{skill.name}</span>
-                          <div className="flex gap-0.5">
-                            {[1, 2, 3, 4, 5].map(star => (
-                              star <= skill.profileRating ? (
-                                <StarIcon key={star} className="w-4 h-4 text-warning" />
-                              ) : (
-                                <StarIconOutline key={star} className="w-4 h-4 text-warning" />
-                              )
-                            ))}
+                          <div className="flex-1">
+                            <h3 className="card-title text-lg">{profile.name}</h3>
+                            <p className="text-sm opacity-70">{profile.role}</p>
+                            <p className="text-sm flex items-center gap-1">
+                              <MapPinIcon className="w-4 h-4" />
+                              {profile.country}
+                            </p>
                           </div>
                         </div>
-                      ))
-                    ) : (
-                      <p className="text-sm opacity-50">No matching skills</p>
-                    )}
-                  </div>
-                  
-                  <div className="card-actions justify-end mt-4">
-                    <Link href={`/profiles/${profile.id}`} className="btn btn-sm btn-primary">
-                      View Profile
-                    </Link>
+                        
+                        <div className="flex flex-col gap-1 mt-3">
+                          {(profile as any).matchingSkills && (profile as any).matchingSkills.length > 0 ? (
+                            (profile as any).matchingSkills.slice(0, 5).map((skill: any, idx: number) => (
+                              <div key={idx} className="flex items-center justify-between text-sm">
+                                <span className="font-medium">{skill.name}</span>
+                                <div className="flex gap-0.5">
+                                  {[1, 2, 3, 4, 5].map(star => (
+                                    star <= skill.profileRating ? (
+                                      <StarIcon key={star} className="w-4 h-4 text-warning" />
+                                    ) : (
+                                      <StarIconOutline key={star} className="w-4 h-4 text-warning" />
+                                    )
+                                  ))}
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-sm opacity-50">No matching skills</p>
+                          )}
+                        </div>
+                        
+                        <div className="card-actions justify-end mt-4">
+                          <Link href={`/profiles/${profile.id}`} className="btn btn-sm btn-primary">
+                            View Profile
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Leaderboard - 1/3 width */}
+            {leaderboard.length > 0 && (
+              <div className={currentUser && relatedProfiles.length > 0 ? "lg:w-1/3" : "w-full"}>
+                <h2 className="text-3xl font-bold mb-6">Top 10</h2>
+                <div className="card bg-base-100 shadow-xl">
+                  <div className="card-body p-4">
+                    <div className="space-y-3">
+                      {leaderboard.map((entry, index) => (
+                        <div 
+                          key={entry.profile.id} 
+                          className={`flex items-center gap-3 p-3 rounded-lg ${
+                            currentUser?.id === entry.profile.id ? 'bg-primary/10 border-2 border-primary' : 'bg-base-200'
+                          }`}
+                        >
+                          <div className="flex-shrink-0 w-8 text-center font-bold">
+                            {index === 0 && <span className="text-2xl">🥇</span>}
+                            {index === 1 && <span className="text-2xl">🥈</span>}
+                            {index === 2 && <span className="text-2xl">🥉</span>}
+                            {index > 2 && <span className="text-sm opacity-70">#{index + 1}</span>}
+                          </div>
+                          
+                          <Link href={`/profiles/${entry.profile.id}`} className="flex items-center gap-2 flex-1 min-w-0 hover:underline">
+                            <div className="avatar">
+                              <div className="w-8 rounded-full">
+                                <img 
+                                  src={entry.profile.photo || `https://ui-avatars.com/api/?name=${entry.profile.name}`} 
+                                  alt={entry.profile.name} 
+                                />
+                              </div>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-semibold text-sm truncate">{entry.profile.name}</div>
+                              <div className="text-xs opacity-60 flex items-center gap-2">
+                                <span>{entry.completedChallenges} completed</span>
+                                {entry.totalRatings > 0 && (
+                                  <span className="flex items-center gap-0.5">
+                                    <StarIcon className="w-3 h-3 text-warning" />
+                                    {entry.averageRating.toFixed(1)}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </Link>
+                          
+                          <div className="flex-shrink-0 text-right">
+                            <div className="font-bold text-primary text-sm">{entry.score.toFixed(0)}</div>
+                            <div className="text-xs opacity-60">pts</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
-            ))}
+            )}
+          </div>
+        </div>
+      ) : null}
+
+      {currentUser && relatedProfiles.length === 0 && (
+        <div className="container mx-auto px-4 py-8">
+          <div className="alert alert-info">
+            <span>No similar profiles found yet. Complete your profile to find matching colleagues!</span>
           </div>
         </div>
       )}
