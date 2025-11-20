@@ -199,49 +199,60 @@ export default function Home() {
                 <div className="card bg-base-100 shadow-xl">
                   <div className="card-body p-4">
                     <div className="space-y-3">
-                      {leaderboard.map((entry, index) => (
-                        <div 
-                          key={entry.profile.id} 
-                          className={`flex items-center gap-3 p-3 rounded-lg ${
-                            currentUser?.id === entry.profile.id ? 'bg-primary/10 border-2 border-primary' : 'bg-base-200'
-                          }`}
-                        >
-                          <div className="flex-shrink-0 w-8 text-center font-bold">
-                            {index === 0 && <span className="text-2xl">🥇</span>}
-                            {index === 1 && <span className="text-2xl">🥈</span>}
-                            {index === 2 && <span className="text-2xl">🥉</span>}
-                            {index > 2 && <span className="text-sm opacity-70">#{index + 1}</span>}
-                          </div>
-                          
-                          <Link href={`/profiles/${entry.profile.id}`} className="flex items-center gap-2 flex-1 min-w-0 hover:underline">
-                            <div className="avatar">
-                              <div className="w-8 rounded-full">
-                                <img 
-                                  src={entry.profile.photo || `https://ui-avatars.com/api/?name=${entry.profile.name}`} 
-                                  alt={entry.profile.name} 
-                                />
-                              </div>
+                      {leaderboard.map((entry, index) => {
+                        const isCurrentUser = currentUser?.id === entry.profile.id;
+                        
+                        return (
+                          <div 
+                            key={entry.profile.id} 
+                            className={`flex items-center gap-3 p-3 rounded-lg transition-all ${
+                              isCurrentUser 
+                                ? 'bg-gradient-to-r from-primary/20 to-secondary/20 border-2 border-primary shadow-md' 
+                                : 'bg-base-200 hover:bg-base-300'
+                            }`}
+                          >
+                            <div className="flex-shrink-0 w-8 text-center font-bold">
+                              {index === 0 && <span className="text-2xl">🥇</span>}
+                              {index === 1 && <span className="text-2xl">🥈</span>}
+                              {index === 2 && <span className="text-2xl">🥉</span>}
+                              {index > 2 && <span className="text-sm opacity-70">#{index + 1}</span>}
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="font-semibold text-sm truncate">{entry.profile.name}</div>
-                              <div className="text-xs opacity-60 flex items-center gap-2">
-                                <span>{entry.completedChallenges} completed</span>
-                                {entry.totalRatings > 0 && (
-                                  <span className="flex items-center gap-0.5">
-                                    <StarIcon className="w-3 h-3 text-warning" />
-                                    {entry.averageRating.toFixed(1)}
-                                  </span>
-                                )}
+                            
+                            <Link href={`/profiles/${entry.profile.id}`} className="flex items-center gap-2 flex-1 min-w-0 hover:underline">
+                              <div className="avatar">
+                                <div className={`w-8 rounded-full ${isCurrentUser ? 'ring ring-primary ring-offset-base-100 ring-offset-2' : ''}`}>
+                                  <img 
+                                    src={entry.profile.photo || `https://ui-avatars.com/api/?name=${entry.profile.name}`} 
+                                    alt={entry.profile.name} 
+                                  />
+                                </div>
                               </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-semibold text-sm truncate">{entry.profile.name}</span>
+                                  {isCurrentUser && (
+                                    <span className="badge badge-primary badge-xs">You</span>
+                                  )}
+                                </div>
+                                <div className="text-xs opacity-60 flex items-center gap-2">
+                                  <span>{entry.completedChallenges} completed</span>
+                                  {entry.totalRatings > 0 && (
+                                    <span className="flex items-center gap-0.5">
+                                      <StarIcon className="w-3 h-3 text-warning" />
+                                      {entry.averageRating.toFixed(1)}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </Link>
+                            
+                            <div className="flex-shrink-0 text-right">
+                              <div className="font-bold text-primary text-sm">{entry.score.toFixed(0)}</div>
+                              <div className="text-xs opacity-60">pts</div>
                             </div>
-                          </Link>
-                          
-                          <div className="flex-shrink-0 text-right">
-                            <div className="font-bold text-primary text-sm">{entry.score.toFixed(0)}</div>
-                            <div className="text-xs opacity-60">pts</div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
