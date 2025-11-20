@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import { ClientLayout } from "@/components/ClientLayout";
 
 export const metadata: Metadata = {
-  title: "Challenge App - MVP",
+  title: "TeamQuor - MVP",
   description: "Platform to create and manage company challenges",
 };
 

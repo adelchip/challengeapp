@@ -1,4 +1,4 @@
-# 🎯 Challenge App - MVP
+# 🎯 TeamQuor - MVP
 
 Internal platform to create and manage company challenges with AI-powered suggestions for the most suitable profiles.
 
@@ -21,8 +21,9 @@ Internal platform to create and manage company challenges with AI-powered sugges
 ### ✅ 2. Challenge Management
 - Create and view challenges
 - Public or private challenges
-- Add/remove participants
+- Add/remove participants with autocomplete search
 - Complete challenges (creator only)
+- Search and filter challenges by title, description, status, and type
 
 ### ✅ 3. AI-Powered Matching (Groq + Llama 3.3)
 - **Groq AI with Llama 3.3 70B** for intelligent suggestions
@@ -35,6 +36,8 @@ Internal platform to create and manage company challenges with AI-powered sugges
 - Message area for each challenge
 - Active participants list
 - Real-time message sending (saved to DB)
+- Toast notifications for all user actions
+- Confirmation modals for destructive actions
 
 ### ✅ 5. Dashboard & Leaderboard
 - Homepage with challenge and profile statistics
@@ -70,6 +73,7 @@ lib/*                  ← Business logic layer (pure functions)
 - **`useProfiles()`** - Profile data fetching with consistent interface
 - **`useChallenges()`** - Challenge data fetching with filtering options
 - **`useLeaderboard()`** - Leaderboard building with scoring integration
+- **`useToast()`** - Toast notification state management
 
 ### Services Layer
 - **`scoringService`** - Pure functions for similarity calculation and ranking
@@ -87,9 +91,13 @@ lib/*                  ← Business logic layer (pure functions)
   - `ParticipantsList` - Participants with creator highlighting
   - `MessageList` - Collaboration room with read-only mode
   - `RatingModal` - Star rating for completed challenges
+  - `ChallengeSearchFilters` - Search and filter component for challenges page
 - **Core Components**:
   - `ProfileCard` - Profile card with 2 modes (matching skills / skill badges)
   - `ChallengeCard` - Challenge card with 3 modes (view / join / delete)
+  - `ProfileAutocomplete` - Autocomplete search for profile selection
+  - `Toast` & `ToastContainer` - Toast notification system (4 types: success/error/warning/info)
+  - `ConfirmModal` - Confirmation modal for destructive actions
   - `LoadingSpinner` & `PageLoader` - Consistent loading states
   - `ErrorBoundary` - Global React error handling
 
@@ -168,9 +176,13 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
   page.tsx              # Homepage with dashboard and leaderboard
 
 /components
-  Navbar.tsx                      # Navbar with DaisyUI
+  Navbar.tsx                      # Navbar with TeamQuor logo
   ProfileCard.tsx                 # Reusable profile card
   ChallengeCard.tsx               # Reusable challenge card
+  ChallengeSearchFilters.tsx      # Search and filter component
+  ProfileAutocomplete.tsx         # Autocomplete profile selection
+  Toast.tsx                       # Toast notification system
+  ConfirmModal.tsx                # Confirmation modal
   LoadingSpinner.tsx              # Spinner and PageLoader
   ErrorBoundary.tsx               # Global error boundary
   ClientLayout.tsx                # Wrapper with ErrorBoundary
@@ -187,6 +199,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
   useProfiles.ts                  # Profile data fetching hooks
   useChallenges.ts                # Challenge data fetching hooks
   useLeaderboard.ts               # Leaderboard building hook
+  useToast.ts                     # Toast notification hook
 
 /lib
   supabase.ts                     # Supabase client
@@ -256,16 +269,20 @@ When Groq is unavailable:
 Used throughout the app:
 - **Cards** - ProfileCard, ChallengeCard, layout cards
 - **Buttons** - Primary, secondary, ghost, error variants
-- **Forms** - Input, textarea, select with validation
+- **Forms** - Input, textarea, autocomplete with validation
 - **Badges** - Status, type, skill indicators
 - **Stats** - Dashboard statistics
 - **Chat bubbles** - Collaboration room messages
 - **Loading** - Spinners (sm/md/lg), PageLoader
-- **Navbar** - Responsive with dropdown
-- **Modals** - Rating modal, confirmations
+- **Navbar** - Responsive with TeamQuor logo and dropdown
+- **Modals** - Rating modal, confirmation modals
+- **Toasts** - Success, error, warning, info notifications
 - **Alerts** - Success, info, warning states
 
-**Theme:** DaisyUI default with custom gradient backgrounds and enhanced styling
+**Theme:** Custom TeamSystem theme with brand colors:
+- Primary: `#00C2D1` (cyan/turquoise)
+- Secondary: `#0066CC` (blue)
+- Gradient titles: `from-primary to-secondary`
 
 ## 📝 Notes
 
@@ -297,15 +314,16 @@ Used throughout the app:
 ### Code Quality Improvements
 - **Homepage**: 464 → 302 lines (-35%)
 - **Challenge Detail**: 717 → 353 lines (-51%)
-- **New Architecture**: +1,533 lines of structured code
-- **Removed**: -736 lines of duplicate/messy code
+- **New Architecture**: +2,000+ lines of structured code
+- **Removed**: -800+ lines of duplicate/messy code
+- **Browser Dialogs Replaced**: 100% (all alert() and confirm() replaced with custom UI)
 - **TypeScript Errors**: 0
 - **Build Status**: ✅ Successful
 
 ### Architecture
 - **Service Layer**: 2 files, 416 lines
-- **Custom Hooks**: 4 files, 568 lines
-- **Specialized Components**: 6 files, 551 lines
+- **Custom Hooks**: 5 files, 611 lines
+- **Specialized Components**: 11 files, 1,100+ lines
 - **Constants**: 170 lines centralized
 
 ## 🚀 Deploy

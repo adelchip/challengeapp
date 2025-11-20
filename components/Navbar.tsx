@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { FlagIcon } from '@heroicons/react/24/outline';
@@ -17,8 +18,14 @@ export default function Navbar() {
   return (
     <div className="navbar bg-base-100 shadow-lg">
       <div className="flex-1">
-        <Link href="/" className="btn btn-ghost text-xl">
-          Challenge App
+        <Link href="/" className="btn btn-ghost">
+          <Image 
+            src="/logo_teamquor.png" 
+            alt="TeamQuor" 
+            width={120} 
+            height={40}
+            className="object-contain"
+          />
         </Link>
       </div>
       <div className="flex-none">
