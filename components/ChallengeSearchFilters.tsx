@@ -3,8 +3,6 @@
  * Provides search and filtering controls for challenge list
  */
 
-import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
-
 export type StatusFilter = 'all' | 'ongoing' | 'completed';
 export type TypeFilter = 'all' | 'public' | 'private';
 
@@ -58,9 +56,6 @@ export function ChallengeSearchFilters({
             {/* Search Input */}
             <div className="flex-1">
               <div className="input-group">
-                <span className="bg-base-200">
-                  <MagnifyingGlassIcon className="w-5 h-5" />
-                </span>
                 <input
                   type="text"
                   placeholder="Search challenges by title or description..."
@@ -84,7 +79,6 @@ export function ChallengeSearchFilters({
 
             {/* Filters */}
             <div className="flex gap-3 items-center">
-              <FunnelIcon className="w-5 h-5 text-base-content/50" />
               
               {/* Status Filter */}
               <select
