@@ -12,6 +12,7 @@ import { findSimilarProfiles, findSuggestedChallenges, ScoredProfile } from '@/l
 import { PageLoader } from '@/components/LoadingSpinner';
 import { ProfileCard } from '@/components/ProfileCard';
 import { ChallengeCard } from '@/components/ChallengeCard';
+import { SuggestedChallenges } from '@/components/challenge/SuggestedChallenges';
 import { MapPinIcon, StarIcon } from '@heroicons/react/24/solid';
 import { StarIcon as StarIconOutline } from '@heroicons/react/24/outline';
 
@@ -249,21 +250,10 @@ export default function Home() {
         </div>
       )}
 
-      {currentUser && suggestedChallenges.length > 0 && (
-        <div className="container mx-auto px-4 py-8">
-          <h2 className="text-3xl font-bold mb-6">Challenges Suggested for You</h2>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {suggestedChallenges.map((challenge) => (
-              <ChallengeCard 
-                key={challenge.id} 
-                challenge={challenge} 
-                onJoin={joinChallenge}
-                showJoinButton
-              />
-            ))}
-          </div>
-        </div>
-      )}
+      <SuggestedChallenges 
+        challenges={suggestedChallenges}
+        onJoin={joinChallenge}
+      />
     </div>
   );
 }
