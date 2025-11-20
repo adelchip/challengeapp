@@ -4,9 +4,11 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Profile } from '@/types';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function NewChallengePage() {
   const router = useRouter();
+  const { currentUser, checkAuth } = useAuth();
   const [loading, setLoading] = useState(false);
   const [aiStatus, setAiStatus] = useState<'idle' | 'analyzing' | 'success' | 'error'>('idle');
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -41,7 +43,7 @@ export default function NewChallengePage() {
 
     try {
       // Get current user
-      const currentUserId = localStorage.getItem('currentUserId');
+      const currentUserId = checkAuth();
       if (!currentUserId) {
         alert('Please login to create a challenge');
         setLoading(false);

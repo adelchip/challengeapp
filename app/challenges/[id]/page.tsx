@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Challenge, Profile, Message, ChallengeRating } from '@/types';
+import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import { UserGroupIcon, StarIcon } from '@heroicons/react/24/solid';
 import { StarIcon as StarIconOutline } from '@heroicons/react/24/outline';
@@ -11,6 +12,7 @@ import { StarIcon as StarIconOutline } from '@heroicons/react/24/outline';
 export default function ChallengeDetailPage() {
   const router = useRouter();
   const params = useParams();
+  const { currentUser, checkAuth } = useAuth();
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [suggestedProfiles, setSuggestedProfiles] = useState<Profile[]>([]);
   const [participants, setParticipants] = useState<Profile[]>([]);
@@ -22,6 +24,8 @@ export default function ChallengeDetailPage() {
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [existingRatings, setExistingRatings] = useState<ChallengeRating[]>([]);
+
+  const isCreator = currentUser?.id === challenge?.created_by;
 
   useEffect(() => {
     fetchChallengeData();
@@ -285,9 +289,6 @@ export default function ChallengeDetailPage() {
   const availableProfiles = allProfiles.filter(p => 
     !challenge.participants.includes(p.id)
   );
-  
-  const currentUserId = localStorage.getItem('currentUserId');
-  const isCreator = currentUserId === challenge.created_by;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-base-200 to-base-300">

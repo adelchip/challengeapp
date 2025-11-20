@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { Profile, Challenge } from '@/types';
+import { useAuth } from '@/hooks/useAuth';
 import { MapPinIcon, StarIcon } from '@heroicons/react/24/solid';
 import { StarIcon as StarIconOutline } from '@heroicons/react/24/outline';
 
@@ -16,8 +17,8 @@ interface LeaderboardEntry {
 }
 
 export default function Home() {
+  const { currentUser } = useAuth();
   const [stats, setStats] = useState({ challenges: 0, profiles: 0 });
-  const [currentUser, setCurrentUser] = useState<Profile | null>(null);
   const [relatedProfiles, setRelatedProfiles] = useState<Profile[]>([]);
   const [suggestedChallenges, setSuggestedChallenges] = useState<Challenge[]>([]);
   const [yourChallenges, setYourChallenges] = useState<Challenge[]>([]);
@@ -26,12 +27,9 @@ export default function Home() {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [currentUser]);
 
   async function loadData() {
-    // Get current user from localStorage
-    const userId = localStorage.getItem('currentUserId');
-    
     // Fetch stats
     const [challengesResult, profilesResult] = await Promise.all([
       supabase.from('challenges').select('id', { count: 'exact', head: true }),
@@ -43,26 +41,14 @@ export default function Home() {
       profiles: profilesResult.count || 0,
     });
 
-    // Fetch current user if logged in
-    if (userId) {
-      const { data: userData } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-      
-      if (userData) {
-        setCurrentUser(userData);
-        await Promise.all([
-          fetchRelatedProfiles(userData),
-          fetchSuggestedChallenges(userData),
-          fetchYourChallenges(userData),
-          fetchLeaderboard()
-        ]);
-      } else {
-        // User not found, clear session
-        localStorage.removeItem('currentUserId');
-      }
+    // Fetch data based on current user
+    if (currentUser) {
+      await Promise.all([
+        fetchRelatedProfiles(currentUser),
+        fetchSuggestedChallenges(currentUser),
+        fetchYourChallenges(currentUser),
+        fetchLeaderboard()
+      ]);
     } else {
       // Fetch leaderboard even if not logged in
       await fetchLeaderboard();
@@ -289,7 +275,6 @@ export default function Home() {
 
   function logout() {
     localStorage.removeItem('currentUserId');
-    setCurrentUser(null);
     setRelatedProfiles([]);
     setSuggestedChallenges([]);
     setYourChallenges([]);
