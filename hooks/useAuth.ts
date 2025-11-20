@@ -3,8 +3,37 @@ import { supabase } from '@/lib/supabase';
 import { Profile } from '@/types';
 
 /**
- * Custom hook for managing authentication state
- * Centralizes all localStorage logic and provides a clean API for auth operations
+ * Custom hook for centralized authentication state management
+ * 
+ * Manages user authentication state using localStorage and Supabase.
+ * Provides methods for login, logout, and checking auth status.
+ * Automatically loads current user profile on mount and listens for auth changes.
+ * 
+ * @returns {Object} Authentication state and methods
+ * @returns {Profile | null} currentUser - Currently logged in user profile (null if not logged in)
+ * @returns {boolean} loading - True while loading user data
+ * @returns {boolean} isAuthenticated - True if user is logged in
+ * @returns {Function} login - Login with user ID: (userId: string) => void
+ * @returns {Function} logout - Logout current user: () => void
+ * @returns {Function} checkAuth - Get current user ID from localStorage: () => string | null
+ * 
+ * @example
+ * function MyComponent() {
+ *   const { currentUser, loading, login, logout, isAuthenticated } = useAuth();
+ * 
+ *   if (loading) return <LoadingSpinner />;
+ * 
+ *   if (!isAuthenticated) {
+ *     return <button onClick={() => login('user-id')}>Login</button>;
+ *   }
+ * 
+ *   return (
+ *     <div>
+ *       <p>Welcome, {currentUser?.name}</p>
+ *       <button onClick={logout}>Logout</button>
+ *     </div>
+ *   );
+ * }
  */
 export function useAuth() {
   const [currentUser, setCurrentUser] = useState<Profile | null>(null);

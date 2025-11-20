@@ -2,18 +2,55 @@ import Link from 'next/link';
 import { Challenge } from '@/types';
 
 interface ChallengeCardProps {
+  /** Challenge object to display */
   challenge: Challenge;
+  /** Callback when join button is clicked */
   onJoin?: (challengeId: string) => void;
+  /** Callback when delete button is clicked */
   onDelete?: (challengeId: string) => void;
+  /** Show join button (default: false) */
   showJoinButton?: boolean;
+  /** Show delete button (default: false) */
   showDeleteButton?: boolean;
 }
 
 /**
- * Reusable challenge card component
- * Used in: Homepage, Challenges list, Suggested challenges
+ * Reusable challenge card component with three action modes:
+ * 
+ * 1. **View Only Mode** (default):
+ *    - Only "View Details" button shown
+ *    - Used in "Your Challenges" section
+ * 
+ * 2. **Join Mode** (showJoinButton=true):
+ *    - Shows "Join Challenge" button
+ *    - Used in "Suggested Challenges" section
+ *    - Requires onJoin callback
+ * 
+ * 3. **Delete Mode** (showDeleteButton=true):
+ *    - Shows "Delete" button
+ *    - Used in challenges list page (for creators)
+ *    - Requires onDelete callback
+ * 
+ * @component
+ * @example
+ * // View only
+ * <ChallengeCard challenge={challenge} />
+ * 
+ * // With join button
+ * <ChallengeCard 
+ *   challenge={challenge} 
+ *   showJoinButton 
+ *   onJoin={handleJoin} 
+ * />
+ * 
+ * // With delete button
+ * <ChallengeCard 
+ *   challenge={challenge} 
+ *   showDeleteButton 
+ *   onDelete={handleDelete} 
+ * />
  */
-export function ChallengeCard({ 
+export function ChallengeCard({
   challenge, 
   onJoin, 
   onDelete,

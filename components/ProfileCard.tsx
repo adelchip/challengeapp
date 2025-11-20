@@ -4,12 +4,33 @@ import { MapPinIcon, StarIcon } from '@heroicons/react/24/solid';
 import { StarIcon as StarIconOutline } from '@heroicons/react/24/outline';
 
 interface ProfileCardProps {
+  /**
+   * Profile object to display. Can include optional matchingSkills for similarity matching.
+   * @property matchingSkills - Array of skills with user and profile ratings (used in "People Similar to You")
+   */
   profile: Profile & { matchingSkills?: any[] };
 }
 
 /**
- * Reusable profile card component
- * Used in: Homepage (similar profiles), Profile search/list
+ * Reusable profile card component with two display modes:
+ * 
+ * 1. **Matching Skills Mode** (when profile.matchingSkills exists):
+ *    - Displays up to 5 matching skills in rows
+ *    - Shows star ratings for comparison
+ *    - Used in "People Similar to You" section
+ * 
+ * 2. **Skills Badge Mode** (default):
+ *    - Displays top 3 skills as compact badges
+ *    - Shows skill names with star ratings
+ *    - Used in profile list pages
+ * 
+ * @component
+ * @example
+ * // Matching skills mode
+ * <ProfileCard profile={{ ...profile, matchingSkills: [...] }} />
+ * 
+ * // Regular mode
+ * <ProfileCard profile={profile} />
  */
 export function ProfileCard({ profile }: ProfileCardProps) {
   return (
