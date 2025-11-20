@@ -293,7 +293,11 @@ export default function ChallengeDetailPage() {
             <div className="space-y-6">
               {/* Suggested Profiles - Only show when challenge is ongoing */}
               {challenge.status === 'ongoing' && suggestedProfiles.length > 0 && (
-                <SuggestedProfiles profiles={suggestedProfiles} />
+                <SuggestedProfiles 
+                  profiles={suggestedProfiles}
+                  participantIds={challenge.participants}
+                  onAdd={handleJoin}
+                />
               )}
 
           {/* Participants */}
@@ -301,6 +305,7 @@ export default function ChallengeDetailPage() {
             participants={participants}
             currentUser={currentUser}
             isCreator={isCreator}
+            creatorId={challenge.created_by}
           />
 
           {/* Add Participant - Only show when challenge is ongoing */}

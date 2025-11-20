@@ -14,6 +14,8 @@ interface ParticipantsListProps {
   currentUser: Profile | null;
   /** Whether current user is the challenge creator */
   isCreator: boolean;
+  /** Challenge creator's ID for highlighting */
+  creatorId?: string;
   /** Callback when user wants to join */
   onJoin?: () => void;
   /** Callback when user wants to leave */
@@ -28,6 +30,7 @@ export function ParticipantsList({
   participants,
   currentUser,
   isCreator,
+  creatorId,
   onJoin,
   onLeave
 }: ParticipantsListProps) {
@@ -61,25 +64,45 @@ export function ParticipantsList({
           </div>
         ) : (
           <div className="space-y-3">
-            {participants.map(participant => (
-              <Link
-                key={participant.id}
-                href={`/profiles/${participant.id}`}
-                className="flex items-center gap-3 p-2 rounded-lg hover:bg-base-200 transition-colors"
-              >
-                {participant.photo && (
+            {participants.map(participant => {
+              const isCreatorProfile = creatorId && participant.id === creatorId;
+              
+              return (
+                <div
+                  key={participant.id}
+                  className={`flex items-center gap-3 p-3 rounded-lg transition-all ${
+                    isCreatorProfile 
+                      ? 'bg-gradient-to-r from-primary/20 to-secondary/20 border-2 border-primary shadow-md' 
+                      : 'bg-base-200 hover:bg-base-300'
+                  }`}
+                >
                   <div className="avatar">
-                    <div className="w-10 rounded-full">
-                      <img src={participant.photo} alt={participant.name} />
+                    <div className={`w-12 rounded-full ${isCreatorProfile ? 'ring ring-primary ring-offset-base-100 ring-offset-2' : ''}`}>
+                      <img 
+                        src={participant.photo || `https://ui-avatars.com/api/?name=${participant.name}`} 
+                        alt={participant.name} 
+                      />
                     </div>
                   </div>
-                )}
-                <div className="flex-1">
-                  <div className="font-medium">{participant.name}</div>
-                  <div className="text-sm opacity-70">{participant.role}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Link href={`/profiles/${participant.id}`} className="font-semibold text-sm hover:underline truncate">
+                        {participant.name}
+                      </Link>
+                      {isCreatorProfile && (
+                        <span className="badge badge-primary badge-sm gap-1">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                          </svg>
+                          Creator
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs opacity-70 truncate">{participant.role}</p>
+                  </div>
                 </div>
-              </Link>
-            ))}
+              );
+            })}
           </div>
         )}
 
