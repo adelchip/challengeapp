@@ -47,6 +47,33 @@ After adding environment variables, trigger a new deployment:
 
 ## Common Issues
 
+### 401 Error: "Unauthorized" from Supabase
+**Cause**: Row Level Security (RLS) is enabled on Supabase tables, blocking anonymous access
+**Fix**: 
+1. Go to your Supabase project: [Supabase Dashboard](https://supabase.com/dashboard)
+2. Go to **SQL Editor**
+3. Run the SQL from `supabase-disable-rls.sql` file in your repo
+4. Or manually disable RLS:
+   - Go to **Table Editor** → select each table (profiles, challenges, messages, challenge_ratings)
+   - Click **⋮** menu → **Edit Table** 
+   - Uncheck "Enable Row Level Security (RLS)"
+   - Click **Save**
+
+**Alternative (More Secure)**: Instead of disabling RLS, add policies that allow public read access:
+```sql
+-- Enable read access for everyone
+CREATE POLICY "Enable read access for all users" ON profiles FOR SELECT USING (true);
+CREATE POLICY "Enable read access for all users" ON challenges FOR SELECT USING (true);
+CREATE POLICY "Enable read access for all users" ON messages FOR SELECT USING (true);
+CREATE POLICY "Enable read access for all users" ON challenge_ratings FOR SELECT USING (true);
+
+-- Enable insert/update/delete for all users (for demo purposes)
+CREATE POLICY "Enable insert for all users" ON profiles FOR INSERT WITH CHECK (true);
+CREATE POLICY "Enable update for all users" ON profiles FOR UPDATE USING (true);
+CREATE POLICY "Enable delete for all users" ON profiles FOR DELETE USING (true);
+-- Repeat for other tables...
+```
+
 ### Build Error: "Invalid supabaseUrl"
 **Cause**: `NEXT_PUBLIC_SUPABASE_URL` is missing or invalid
 **Fix**: Ensure the URL starts with `https://` and is correctly set in Vercel environment variables
