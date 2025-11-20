@@ -50,7 +50,6 @@ export default function NewChallengePage() {
         return;
       }
 
-      console.log('🤖 Calling AI agent with Groq + Llama...');
       const startTime = Date.now();
       
       // Call AI API to get profile suggestions
@@ -63,15 +62,11 @@ export default function NewChallengePage() {
         }),
       });
 
-      const responseTime = Date.now() - startTime;
-      console.log(`⚡ AI response time: ${responseTime}ms`);
-
       if (!response.ok) {
         throw new Error('AI suggestion failed');
       }
 
       const { suggestedProfiles } = await response.json();
-      console.log('✅ AI suggested profiles:', suggestedProfiles);
       
       setAiStatus('success');
       setSuggestedProfiles(suggestedProfiles);

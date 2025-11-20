@@ -16,12 +16,8 @@ export async function suggestProfilesWithAI(
   profiles: Profile[]
 ): Promise<Profile[]> {
   try {
-    console.log('🧠 Starting Groq AI analysis...');
-    console.log('🔑 API Key configured:', !!process.env.GROQ_API_KEY);
-    
     // If no API key, fall back to keyword matching
     if (!groq) {
-      console.log('⚠️ Groq API key not configured, using fallback');
       return fallbackSuggestion(challenge, profiles);
     }
     
@@ -51,8 +47,6 @@ export async function suggestProfilesWithAI(
         .sort((a, b) => b.score - a.score)
         .slice(0, 100)
         .map(sp => sp.profile);
-      
-      console.log(`📉 Pre-filtered from ${profiles.length} to ${filteredProfiles.length} profiles`);
     }
     
     // Prepare profiles data for AI analysis
@@ -99,9 +93,6 @@ Return ONLY a JSON array with indices of profiles that ACTUALLY match (1-10 max,
 Format: [index1, index2, ...] or []
 
 Your response (JSON array only):`;
-
-    console.log('📤 Sending request to Groq...');
-    console.log('📝 Model: llama-3.3-70b-versatile');
     
     const completion = await groq.chat.completions.create({
       messages: [
@@ -116,24 +107,19 @@ Your response (JSON array only):`;
     });
 
     const response = completion.choices[0]?.message?.content || '[]';
-    console.log('📥 Groq response:', response);
-    console.log('⚡ Usage:', completion.usage);
     
     // Parse AI response
     const suggestedIndices = JSON.parse(response.trim());
-    console.log('🎯 Suggested indices:', suggestedIndices);
     
     // Return the suggested profiles (no max limit, AI decides based on match quality)
     const suggestions = suggestedIndices
       .map((idx: number) => profiles[idx])
       .filter(Boolean); // Remove any undefined
     
-    console.log(`✅ Returning ${suggestions.length} matched profiles`);
     return suggestions;
 
   } catch (error) {
-    console.error('❌ AI suggestion error:', error);
-    console.log('🔄 Falling back to keyword matching...');
+    console.error('AI suggestion error:', error);
     // Fallback to simple keyword matching if AI fails
     return fallbackSuggestion(challenge, profiles);
   }
