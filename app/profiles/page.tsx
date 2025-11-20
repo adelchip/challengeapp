@@ -3,9 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Profile } from '@/types';
-import Link from 'next/link';
-import { MapPinIcon, StarIcon } from '@heroicons/react/24/solid';
-import { StarIcon as StarIconOutline } from '@heroicons/react/24/outline';
+import { PageLoader } from '@/components/LoadingSpinner';
+import { ProfileCard } from '@/components/ProfileCard';
 
 export default function ProfilesPage() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -134,11 +133,7 @@ export default function ProfilesPage() {
   }
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[50vh]">
-        <span className="loading loading-spinner loading-lg"></span>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   const totalPages = Math.ceil(totalCount / pageSize);
@@ -242,58 +237,7 @@ export default function ProfilesPage() {
         <>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {profiles.map((profile) => (
-              <div key={profile.id} className="card bg-base-100 shadow-xl">
-                <div className="card-body">
-                  <div className="flex items-start gap-3">
-                    {profile.photo && (
-                      <div className="avatar">
-                        <div className="w-12 rounded-full">
-                          <img src={profile.photo} alt={profile.name} />
-                        </div>
-                      </div>
-                    )}
-                    <div className="flex-1">
-                      <h2 className="card-title text-lg">{profile.name}</h2>
-                      <p className="text-sm opacity-70">{profile.role}</p>
-                    </div>
-                  </div>
-                  
-                  {profile.description && (
-                    <p className="text-sm line-clamp-2 mt-2">{profile.description}</p>
-                  )}
-                  
-                  <p className="text-sm">{profile.business_unit}</p>
-                  <p className="text-sm flex items-center gap-1">
-                    <MapPinIcon className="w-4 h-4" /> {profile.country}
-                  </p>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {profile.skills.slice(0, 3).map((skill, idx) => (
-                      <div key={idx} className="badge badge-primary badge-sm gap-1">
-                        {skill.name}
-                        <span className="flex gap-0.5">
-                          {[1, 2, 3, 4, 5].map(star => (
-                            star <= skill.rating ? (
-                              <StarIcon key={star} className="w-3 h-3 text-warning" />
-                            ) : (
-                              <StarIconOutline key={star} className="w-3 h-3 text-warning" />
-                            )
-                          ))}
-                        </span>
-                      </div>
-                    ))}
-                    {profile.skills.length > 3 && (
-                      <div className="badge badge-ghost badge-sm">
-                        +{profile.skills.length - 3} more
-                      </div>
-                    )}
-                  </div>
-                  <div className="card-actions justify-end mt-4">
-                    <Link href={`/profiles/${profile.id}`} className="btn btn-sm btn-primary">
-                      View Details
-                    </Link>
-                  </div>
-                </div>
-              </div>
+              <ProfileCard key={profile.id} profile={profile} />
             ))}
           </div>
 

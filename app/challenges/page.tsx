@@ -3,9 +3,13 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Challenge } from '@/types';
+import { useAuth } from '@/hooks/useAuth';
+import { PageLoader } from '@/components/LoadingSpinner';
+import { ChallengeCard } from '@/components/ChallengeCard';
 import Link from 'next/link';
 
 export default function ChallengesPage() {
+  const { currentUser } = useAuth();
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -15,8 +19,6 @@ export default function ChallengesPage() {
 
   async function fetchChallenges() {
     try {
-      const currentUserId = localStorage.getItem('currentUserId');
-      
       const { data, error } = await supabase
         .from('challenges')
         .select('*')
@@ -27,8 +29,8 @@ export default function ChallengesPage() {
       // Filter out private challenges unless user is creator or participant
       const filteredChallenges = (data || []).filter(challenge => {
         if (challenge.type === 'public') return true;
-        if (!currentUserId) return false;
-        return challenge.created_by === currentUserId || challenge.participants?.includes(currentUserId);
+        if (!currentUser) return false;
+        return challenge.created_by === currentUser.id || challenge.participants?.includes(currentUser.id);
       });
       
       setChallenges(filteredChallenges);
@@ -57,11 +59,7 @@ export default function ChallengesPage() {
   }
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[50vh]">
-        <span className="loading loading-spinner loading-lg"></span>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   return (
@@ -83,40 +81,12 @@ export default function ChallengesPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {challenges.map((challenge) => (
-            <div key={challenge.id} className="card bg-base-100 shadow-xl">
-              <div className="card-body">
-                <div className="flex justify-between items-start gap-2">
-                  <h2 className="card-title flex-1">{challenge.title}</h2>
-                  <span className={`badge ${challenge.status === 'completed' ? 'badge-success' : 'badge-info'}`}>
-                    {challenge.status === 'completed' ? 'Completed' : 'Ongoing'}
-                  </span>
-                </div>
-                <p className="text-sm opacity-70 line-clamp-2">{challenge.description}</p>
-                
-                <div className="mt-2">
-                  <p className="text-xs opacity-60">
-                    Participants: {challenge.participants.length}
-                  </p>
-                  {challenge.suggested_profiles.length > 0 && (
-                    <p className="text-xs opacity-60">
-                      Suggested profiles: {challenge.suggested_profiles.length}
-                    </p>
-                  )}
-                </div>
-
-                <div className="card-actions justify-end mt-4">
-                  <Link href={`/challenges/${challenge.id}`} className="btn btn-sm btn-primary">
-                    View
-                  </Link>
-                  <button 
-                    onClick={() => deleteChallenge(challenge.id)} 
-                    className="btn btn-sm btn-error"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
+            <ChallengeCard 
+              key={challenge.id} 
+              challenge={challenge}
+              onDelete={deleteChallenge}
+              showDeleteButton
+            />
           ))}
         </div>
       )}

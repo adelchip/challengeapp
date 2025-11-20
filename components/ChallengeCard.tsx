@@ -4,14 +4,22 @@ import { Challenge } from '@/types';
 interface ChallengeCardProps {
   challenge: Challenge;
   onJoin?: (challengeId: string) => void;
+  onDelete?: (challengeId: string) => void;
   showJoinButton?: boolean;
+  showDeleteButton?: boolean;
 }
 
 /**
  * Reusable challenge card component
  * Used in: Homepage, Challenges list, Suggested challenges
  */
-export function ChallengeCard({ challenge, onJoin, showJoinButton = false }: ChallengeCardProps) {
+export function ChallengeCard({ 
+  challenge, 
+  onJoin, 
+  onDelete,
+  showJoinButton = false,
+  showDeleteButton = false 
+}: ChallengeCardProps) {
   return (
     <div className="card bg-base-100 shadow-xl">
       <div className="card-body">
@@ -34,7 +42,7 @@ export function ChallengeCard({ challenge, onJoin, showJoinButton = false }: Cha
         )}
         
         <div className="card-actions justify-end mt-4 gap-2">
-          <Link href={`/challenges/${challenge.id}`} className={showJoinButton ? "btn btn-sm btn-ghost" : "btn btn-sm btn-primary"}>
+          <Link href={`/challenges/${challenge.id}`} className={showJoinButton || showDeleteButton ? "btn btn-sm btn-ghost" : "btn btn-sm btn-primary"}>
             View Details
           </Link>
           {showJoinButton && onJoin && (
@@ -43,6 +51,14 @@ export function ChallengeCard({ challenge, onJoin, showJoinButton = false }: Cha
               className="btn btn-sm btn-primary"
             >
               Join Challenge
+            </button>
+          )}
+          {showDeleteButton && onDelete && (
+            <button 
+              onClick={() => onDelete(challenge.id)} 
+              className="btn btn-sm btn-error"
+            >
+              Delete
             </button>
           )}
         </div>
