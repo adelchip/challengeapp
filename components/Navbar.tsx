@@ -1,53 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
-import { Profile } from '@/types';
+import { useAuth } from '@/hooks/useAuth';
 import { FlagIcon } from '@heroicons/react/24/outline';
 
 export default function Navbar() {
   const router = useRouter();
-  const [currentUser, setCurrentUser] = useState<Profile | null>(null);
+  const { currentUser, logout: authLogout } = useAuth();
 
-  useEffect(() => {
-    loadCurrentUser();
-    
-    // Listen for storage changes (when user logs in/out in another tab)
-    const handleStorageChange = () => {
-      loadCurrentUser();
-    };
-    window.addEventListener('storage', handleStorageChange);
-    
-    // Custom event for same-tab updates
-    window.addEventListener('userChanged', handleStorageChange);
-    
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('userChanged', handleStorageChange);
-    };
-  }, []);
-
-  async function loadCurrentUser() {
-    const userId = localStorage.getItem('currentUserId');
-    if (userId) {
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-      
-      setCurrentUser(data || null);
-    } else {
-      setCurrentUser(null);
-    }
-  }
-
-  function logout() {
-    localStorage.removeItem('currentUserId');
-    setCurrentUser(null);
-    window.dispatchEvent(new Event('userChanged'));
+  function handleLogout() {
+    authLogout();
     router.push('/');
   }
 
@@ -103,7 +66,7 @@ export default function Navbar() {
                   <Link href={`/profiles/${currentUser.id}`}>View Profile</Link>
                 </li>
                 <li>
-                  <button onClick={logout} className="text-error">Logout</button>
+                  <button onClick={handleLogout} className="text-error">Logout</button>
                 </li>
               </ul>
             </div>
